@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 
 #Install packages if first time
 install.packages('dplyr')
@@ -7,6 +12,8 @@ install.packages('stringr')
 install.packages('forcats')
 install.packages('purr')
 install.packages("ggpubr")
+install.packages('car')
+install.packages('gdata')
 
 
 #Read in Packages needed
@@ -18,6 +25,8 @@ library(forcats) # factor manipulation
 library(purrr) # iteration (instead of loops)
 library(ggpubr) # for Correlation
 library(ggplot2) # for Plots
+library ('car')
+library ('gdata')
 
 #Import the data- ANES Survey Timeseries
 library(haven)
@@ -29,46 +38,57 @@ Updated1 <-anes_timeseries_cdf_stata13[!(anes_timeseries_cdf_stata13$VCF0004<"20
 
 # select variables 
 
-Filtered = subset(Updated1, select = c(
-  VCF0004, VCF0102, VCF0103, VCF0104,VCF0105a, VCF0105b,VCF0106,VCF0107, VCF0700,
-  VCF0201,VCF0202, VCF0301 ,VCF0303, VCF0314 ,VCF0315 ,VCF0323 ,VCF0501,VCF9008,VCF9010 ,VCF9011,VCF9012,
-  VCF9201,VCF9202 ,VCF9203,VCF9204,VCF9206,VCF0350 ,VCF0351 ,VCF0352,VCF0353 , VCF0354 ,VCF0355 ,
-  VCF0356 ,VCF0357 ,VCF0358 ,VCF0363 ,VCF0364,VCF0365 ,VCF0366 ,VCF0367, VCF0368 ,VCF0369 ,VCF0370 ,
-  VCF0371 ,VCF0372,VCF0373 ,VCF0412 ,VCF0414 ,VCF0906 ,VCF0907,VCF0908 ,VCF0909 ,VCF0450,VCF0451,VCF9217,
-  VCF9218,  VCF9220,VCF9221,VCF0875 ,VCF0875a ,VCF0875b ,VCF9019,VCF9020 ,VCF9052,VCF9222,VCF0803,VCF9240, VCF0228 ,VCF0231 ,VCF0601,VCF0602 , VCF0603 ,
-  VCF0604 ,VCF0608 ,VCF0656,VCF9250,VCF9251,VCF9252,VCF9253,VCF9254,VCF9256,VCF9257,VCF0308,VCF0309,
-  VCF0310,VCF0311,VCF0312,VCF0313,VCF0700,VCF0714,VCF0729 ,VCF0730,VCF0731,VCF0732,VCF0733,VCF0743,
-  VCF0932,VCF0933,VCF0934,VCF0935,VCF0936,VCF0941, VCF0942, VCF0943, VCF0944, VCF0945 , VCF0946 ,VCF0947,
-  VCF0948, VCF0949,VCF9064,VCF0717,VCF0723,VCF0723a,VCF0746,VCF0747 ,VCF9021 ,VCF9030,VCF9030a,
-  VCF0701 ,VCF0702 , VCF0703 , VCF0704 , VCF0704a , VCF0705, VCF0706, VCF0707 , VCF0711, VCF0708,
-  VCF0713 , VCF0712, VCF0748, VCF0749,VCF0750,VCF9022,VCF9023,VCF0675,VCF0724,VCF0725,VCF0726,VCF0727,
-  VCF0728,VCF0744,VCF0745,VCF9032,VCF9033,VCF9034,VCF9035, VCF9266))
-
-
+Condensed_weights  = subset(Updated1, select = c(VCF0004, VCF0102, VCF0103, VCF0104,VCF0105a, VCF0105b,VCF0106,VCF0107, VCF0700,VCF0201,VCF0202, VCF0301 ,VCF0303, VCF0314 ,VCF0315 ,VCF0323 ,VCF0501,VCF9008,VCF9010 ,VCF9011,VCF9012, VCF9201,VCF9202 ,VCF9203,VCF9204,VCF9206,VCF0350 ,VCF0351 ,VCF0352,VCF0353 , VCF0354 ,VCF0355,VCF0356 ,VCF0357 ,VCF0358 ,VCF0363 ,VCF0364,VCF0365 ,VCF0366 ,VCF0367, VCF0368 ,VCF0369 ,VCF0370,VCF0371 ,VCF0372,VCF0373 ,VCF0412 ,VCF0414 ,VCF0906 ,VCF0907,VCF0908 ,VCF0909 ,VCF0450,VCF0451,VCF9217,VCF9218,  VCF9220,VCF9221,VCF0875 ,VCF0875a ,VCF0875b ,VCF9019,VCF9020 ,VCF9052,VCF9222,VCF0803,VCF9240, VCF0228 ,VCF0231 ,VCF0601,VCF0602, VCF0603, VCF0604 ,VCF0608 ,VCF0656,VCF9250,VCF9251,VCF9252,VCF9253,VCF9254,VCF9256,VCF9257,VCF0308,VCF0309,
+  VCF0310,VCF0311,VCF0312,VCF0313,VCF0700,VCF0714,VCF0729 ,VCF0730,VCF0731,VCF0732,VCF0733,VCF0743,VCF0932,VCF0933,VCF0934,VCF0935,VCF0936,VCF0941, VCF0942, VCF0943, VCF0944, VCF0945 , VCF0946 ,VCF0947, VCF0948, VCF0949,VCF9064,VCF0717,VCF0723,VCF0723a,VCF0746,VCF0747 ,VCF9021 ,VCF9030,VCF9030a,
+VCF0701 ,VCF0702 , VCF0703 , VCF0704 , VCF0704a , VCF0705, VCF0706, VCF0707 , VCF0711, VCF0708, VCF0713 , VCF0712, VCF0748, VCF0749,VCF0750,VCF9022,VCF9023,VCF0675,VCF0724,VCF0725,VCF0726,VCF0727,VCF0728,VCF0744,VCF0745,VCF9032,VCF9033,VCF9034,VCF9035, VCF9266, VCF0102, VCF0104, VCF9222, VCF0880, VCF9229, VCF0606, VCF9030a, VCF0322, VCF9206, VCF0105b, VCF0009z, VCF0900b))
 
 #Filter out the columns that are not relevant- have all missings (questions from older surveys (two ways)
 
-Updated_data <- Filtered [ , colSums(is.na(Filtered)) <nrow(Filtered)]
+Updated_data <- Condensed_weights [ , colSums(is.na(Filtered)) <nrow(Filtered)]
 
 data_new3 <- Filtered [ , colSums(is.na(Filtered)) <nrow(Filtered)]
 
-#Descriptive Statistics 
-
-#Connect to the correct frame 
-attach(Updated_data)
-
-summary(Updated_data)
-summary(VCF0301)
-summary(VCF0303)
-summary(VCF0314)
-summary(VCF0315)
-summary(VCF0501)
-summary(VCF9250)
+#attach to frame- checking for missings + descriptive stats
+attach(Condensed_weights)
+summary (VCF9021)
+summary (VCF9030a)
+summary (VCF0728)
+summary (VCF0745)
+summary (VCF9034)
+summary (VCF0724)
+summary (VCF0301)
+summary (VCF9206)
+summary (VCF9222)
+summary (VCF0870)
+summary (VCF0880)
+summary (VCF9225)
+summary (VCF9229)
+summary (VCF0606)
+summary (VCF0607)
+summary (VCF0611)
+summary (VCF0613)
+summary (VCF0617)
+summary (VCF0632)
+summary (VCF0650)
+summary (VCF0501)
+summary (VCF0731)
+summary (VCF0733)
+summary (VCF0310)
+summary (VCF0312)
+summary (VCF0311)
+summary (VCF0653)
+summary (VCF0359)
+summary (VCF0360)
+summary (VCF0361)
+summary (VCF0370)
+summary (VCF0371)
+summary (VCF0372)
+summary (VCF0373)
 summary(VCF0702)
 
 #Add Labels
-names(Updated_data)[names(Updated_data) == "VCF0301"] <- "Party Identification of Respondent-7-point Scale"
-Updated_data
+names(Condensed_weights)[names(Condensed_weights) == "VCF0301"] <- "Party Identification of Respondent-7-point Scale"
+Condensed_weights
 
 #Tables/Cross Tabs
 
@@ -164,8 +184,32 @@ res
 
 #Regressions
 
-Reg1 <- lm(VCF0702 ~ VCF0104 + VCF0303 + VCF0314 + VCF0501 + VCF0412, data=Updated_data)
-summary(Reg1)
+#creating dummy variables 
+
+VCF0102.f <- factor(VCF0102)
+is.factor(VCF0102.f)
+
+VCF0104.f <- factor(VCF0104)
+is.factor(VCF0104.f)
+
+VCF0104.f <- factor(VCF0104)
+is.factor(VCF0104.f)
+
+VCF0880.f <- factor(VCF0880)
+is.factor(VCF0880.f)
+
+Dummy_dep <- ifelse (VCF0702 > 1, 1, 0)
+summary (Dummy_dep)
+
+Dummy_dep
+
+Dummy_right_dir <- ifelse (VCF9222 > 1, 0, 1)
+summary (Dummy_right_dir)
+
+reg3 <- lm(Dummy_dep ~ VCF0102.f + VCF0104.f + Dummy_right_dir + VCF0880.f + VCF9229 + VCF0606 + VCF0501 + VCF9030a + VCF9206 + VCF0105b, weights= VCF0009z, data=Condensed_weights)
+summary(reg3)
+
+
 
 
 

@@ -1,0 +1,251 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+\#Install packages if first time install.packages(`dplyr')
+install.packages(`readr') install.packages(`tidyr')
+install.packages(`stringr') install.packages(`forcats')
+install.packages(`purr') install.packages(``ggpubr'')
+install.packages(`car') install.packages(`gdata')
+
+\#Read in Packages needed library(dplyr) \# manipulate dataframes
+library(readr) \# read/write dataframes library(tidyr) \# reshaping
+dataframes library(stringr) \# string manipulation library(forcats) \#
+factor manipulation library(purrr) \# iteration (instead of loops)
+library(ggpubr) \# for Correlation library(ggplot2) \# for Plots library
+(`car') library (`gdata')
+
+\#Import the data- ANES Survey Timeseries library(haven) \textgreater{}
+anes\_timeseries\_cdf\_stata13 \textless-
+read\_dta(``\textasciitilde/Documents/School/Syllabus/MZ FINAL
+PRO/anes\_timeseries\_cdf\_stata13.dta'')
+
+\#Filter to 2004
+
+Updated1
+\textless-anes\_timeseries\_cdf\_stata13{[}!(anes\_timeseries\_cdf\_stata13\$VCF0004\textless{}``2004''),{]}
+
+\hypertarget{select-variables}{%
+\section{select variables}\label{select-variables}}
+
+Condensed\_weights = subset(Updated1, select = c(VCF0004, VCF0102,
+VCF0103, VCF0104,VCF0105a, VCF0105b,VCF0106,VCF0107,
+VCF0700,VCF0201,VCF0202, VCF0301 ,VCF0303, VCF0314 ,VCF0315 ,VCF0323
+,VCF0501,VCF9008,VCF9010 ,VCF9011,VCF9012, VCF9201,VCF9202
+,VCF9203,VCF9204,VCF9206,VCF0350 ,VCF0351 ,VCF0352,VCF0353 , VCF0354
+,VCF0355,VCF0356 ,VCF0357 ,VCF0358 ,VCF0363 ,VCF0364,VCF0365 ,VCF0366
+,VCF0367, VCF0368 ,VCF0369 ,VCF0370,VCF0371 ,VCF0372,VCF0373 ,VCF0412
+,VCF0414 ,VCF0906 ,VCF0907,VCF0908 ,VCF0909
+,VCF0450,VCF0451,VCF9217,VCF9218, VCF9220,VCF9221,VCF0875 ,VCF0875a
+,VCF0875b ,VCF9019,VCF9020 ,VCF9052,VCF9222,VCF0803,VCF9240, VCF0228
+,VCF0231 ,VCF0601,VCF0602, VCF0603, VCF0604 ,VCF0608
+,VCF0656,VCF9250,VCF9251,VCF9252,VCF9253,VCF9254,VCF9256,VCF9257,VCF0308,VCF0309,
+VCF0310,VCF0311,VCF0312,VCF0313,VCF0700,VCF0714,VCF0729
+,VCF0730,VCF0731,VCF0732,VCF0733,VCF0743,VCF0932,VCF0933,VCF0934,VCF0935,VCF0936,VCF0941,
+VCF0942, VCF0943, VCF0944, VCF0945 , VCF0946 ,VCF0947, VCF0948,
+VCF0949,VCF9064,VCF0717,VCF0723,VCF0723a,VCF0746,VCF0747 ,VCF9021
+,VCF9030,VCF9030a, VCF0701 ,VCF0702 , VCF0703 , VCF0704 , VCF0704a ,
+VCF0705, VCF0706, VCF0707 , VCF0711, VCF0708, VCF0713 , VCF0712,
+VCF0748,
+VCF0749,VCF0750,VCF9022,VCF9023,VCF0675,VCF0724,VCF0725,VCF0726,VCF0727,VCF0728,VCF0744,VCF0745,VCF9032,VCF9033,VCF9034,VCF9035,
+VCF9266, VCF0102, VCF0104, VCF9222, VCF0880, VCF9229, VCF0606, VCF9030a,
+VCF0322, VCF9206, VCF0105b, VCF0009z, VCF0900b))
+
+\#Filter out the columns that are not relevant- have all missings
+(questions from older surveys (two ways)
+
+Updated\_data \textless- Condensed\_weights {[} ,
+colSums(is.na(Filtered)) \textless nrow(Filtered){]}
+
+data\_new3 \textless- Filtered {[} , colSums(is.na(Filtered))
+\textless nrow(Filtered){]}
+
+\#attach to frame- checking for missings + descriptive stats
+attach(Condensed\_weights) summary (VCF9021) summary (VCF9030a) summary
+(VCF0728) summary (VCF0745) summary (VCF9034) summary (VCF0724) summary
+(VCF0301) summary (VCF9206) summary (VCF9222) summary (VCF0870) summary
+(VCF0880) summary (VCF9225) summary (VCF9229) summary (VCF0606) summary
+(VCF0607) summary (VCF0611) summary (VCF0613) summary (VCF0617) summary
+(VCF0632) summary (VCF0650) summary (VCF0501) summary (VCF0731) summary
+(VCF0733) summary (VCF0310) summary (VCF0312) summary (VCF0311) summary
+(VCF0653) summary (VCF0359) summary (VCF0360) summary (VCF0361) summary
+(VCF0370) summary (VCF0371) summary (VCF0372) summary (VCF0373)
+summary(VCF0702)
+
+\#Add Labels names(Condensed\_weights){[}names(Condensed\_weights) ==
+``VCF0301''{]} \textless- ``Party Identification of Respondent-7-point
+Scale'' Condensed\_weights
+
+\#Tables/Cross Tabs
+
+\#Voted-Contacted by a Major Party? Table1 \textless- table(VCF0702,
+VCF9030a)
+
+\#Voted table(VCF0702)
+
+\#Diff b/w parties? table(VCF0501)
+
+table(VCF0702, VCF0501)
+
+Dem\_Voters \textless- table(VCF0702, VCF0314)
+round(prop.table(Dem\_Voters,1),2)
+
+Diff\_parties \textless- table(VCF0702, VCF0501) Diff\_parties
+round(prop.table(Diff\_parties,1),2)
+
+(\#Less incentivized to vote if think there the same)
+
+Dislike\_DEM \textless- table(VCF0702, VCF9201) Dislike\_DEM
+
+Dislike\_REP \textless- table(VCF0702, VCF9202)
+
+Rep\_views \textless- table(VCF0702, VCF9203)
+round(prop.table(Rep\_views,1),2)
+
+which\_party \textless- table(VCF0702, VCF9204)
+round(prop.table(which\_party,1),2)
+
+Party\_pref \textless- table(VCF0702, VCF9206)
+round(prop.table(Party\_pref,1),2)
+
+Dem\_Smart \textless- table(VCF0702, VCF0350)
+round(prop.table(Dem\_Smart,1),2)
+
+Dem\_Angry \textless- table(VCF0702, VCF0358)
+round(prop.table(Dem\_Angry,1),2)
+
+REP\_Angry \textless- table(VCF0702, VCF0370)
+round(prop.table(REP\_Angry,1),2)
+
+Approve\_Pres \textless- table(VCF0702, VCF0450)
+round(prop.table(Approve\_Pres,1),2)
+
+Approve\_Pres\_rating \textless- table(VCF0702, VCF0451)
+round(prop.table(Approve\_Pres\_rating,1),2)
+
+Pres\_Econ \textless- table(VCF0702, VCF9220)
+round(prop.table(Pres\_Econ,1),2)
+
+Right\_Track \textless- table(VCF0702, VCF9222)
+round(prop.table(Right\_Track,1),2)
+
+LIB\_CON \textless- table(VCF0702, VCF0803)
+round(prop.table(LIB\_CON,1),2)
+
+Trust\_Fed\_Gov \textless- table(VCF0702, VCF0604)
+round(prop.table(Trust\_Fed\_Gov,1),2)
+
+Crooked\_FED \textless- table(VCF0702, VCF0608)
+round(prop.table(Crooked\_FED,1),2)
+
+TRUST\_GOV\_GEN \textless- table(VCF0702, VCF0656)
+round(prop.table(TRUST\_GOV\_GEN,1),2)
+
+Volunteer \textless- table(VCF0702, VCF9256)
+round(prop.table(Volunteer,1),2)
+
+Interst\_Elec \textless- table(VCF0702, VCF0310)
+round(prop.table(Interst\_Elec,1),2)
+
+Care\_win \textless- table(VCF0702, VCF0311)
+round(prop.table(Care\_win,1),2)
+
+Care\_win\_CONG \textless- table(VCF0702, VCF0312)
+round(prop.table(Care\_win\_CONG,1),2)
+
+Pred\_Close \textless- table(VCF0702, VCF0714)
+round(prop.table(Pred\_Close,1),2)
+
+Pred\_Close
+
+\#Correlation
+
+res \textless- cor.test(VCF0702, VCF0102, method = ``pearson'') res
+
+\#Regressions
+
+\#creating dummy variables
+
+VCF0102.f \textless- factor(VCF0102) is.factor(VCF0102.f)
+
+VCF0104.f \textless- factor(VCF0104) is.factor(VCF0104.f)
+
+VCF0104.f \textless- factor(VCF0104) is.factor(VCF0104.f)
+
+VCF0880.f \textless- factor(VCF0880) is.factor(VCF0880.f)
+
+Dummy\_dep \textless- ifelse (VCF0702 \textgreater{} 1, 1, 0) summary
+(Dummy\_dep)
+
+Dummy\_dep
+
+Dummy\_right\_dir \textless- ifelse (VCF9222 \textgreater{} 1, 0, 1)
+summary (Dummy\_right\_dir)
+
+reg3 \textless- lm(Dummy\_dep \textasciitilde{} VCF0102.f + VCF0104.f +
+Dummy\_right\_dir + VCF0880.f + VCF9229 + VCF0606 + VCF0501 + VCF9030a +
+VCF9206 + VCF0105b, weights= VCF0009z, data=Condensed\_weights)
+summary(reg3)
+
+\end{document}
