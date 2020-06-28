@@ -1,12 +1,11 @@
 ---
 output:
-  word_document: default
   pdf_document: default
-  html_document: default
+  github_document: default
 ---
 
 #Install packages if first time
-```
+```{r eval=FALSE}
 install.packages('dplyr')
 install.packages('readr')
 install.packages('tidyr')
@@ -16,10 +15,11 @@ install.packages('purr')
 install.packages("ggpubr")
 install.packages('car')
 install.packages('gdata')
+install.packages("skimr")
 ```
 
 #Read in Packages needed
-```
+```{r message=FALSE}
 library(dplyr) # manipulate dataframes
 library(readr) # read/write dataframes
 library(tidyr) # reshaping dataframes
@@ -30,87 +30,97 @@ library(ggpubr) # for Correlation
 library(ggplot2) # for Plots
 library ('car')
 library ('gdata')
+library(skimr) 
 ```
 
 #Import the data- ANES Survey Timeseries
-```
+```{r}
 library(haven)
-> anes_timeseries_cdf_stata13 <- read_dta("~/Documents/School/Syllabus/MZ FINAL PRO/anes_timeseries_cdf_stata13.dta")
+anes_timeseries_cdf_stata13 <- read_dta("data-raw/anes_timeseries_cdf_stata13.dta")
 ```
 
 #Filter to 2004
 
-```
+```{r}
 Updated1 <-anes_timeseries_cdf_stata13[!(anes_timeseries_cdf_stata13$VCF0004<"2004"),]
 ```
 
 # select variables 
 
-```
-Condensed_weights  = subset(Updated1, select = c(VCF0004, VCF0102, VCF0103, VCF0104,VCF0105a, VCF0105b,VCF0106,VCF0107, VCF0700,VCF0201,VCF0202, VCF0301 ,VCF0303, VCF0314 ,VCF0315 ,VCF0323 ,VCF0501,VCF9008,VCF9010 ,VCF9011,VCF9012, VCF9201,VCF9202 ,VCF9203,VCF9204,VCF9206,VCF0350 ,VCF0351 ,VCF0352,VCF0353 , VCF0354 ,VCF0355,VCF0356 ,VCF0357 ,VCF0358 ,VCF0363 ,VCF0364,VCF0365 ,VCF0366 ,VCF0367, VCF0368 ,VCF0369 ,VCF0370,VCF0371 ,VCF0372,VCF0373 ,VCF0412 ,VCF0414 ,VCF0906 ,VCF0907,VCF0908 ,VCF0909 ,VCF0450,VCF0451,VCF9217,VCF9218,  VCF9220,VCF9221,VCF0875 ,VCF0875a ,VCF0875b ,VCF9019,VCF9020 ,VCF9052,VCF9222,VCF0803,VCF9240, VCF0228 ,VCF0231 ,VCF0601,VCF0602, VCF0603, VCF0604 ,VCF0608 ,VCF0656,VCF9250,VCF9251,VCF9252,VCF9253,VCF9254,VCF9256,VCF9257,VCF0308,VCF0309,
-  VCF0310,VCF0311,VCF0312,VCF0313,VCF0700,VCF0714,VCF0729 ,VCF0730,VCF0731,VCF0732,VCF0733,VCF0743,VCF0932,VCF0933,VCF0934,VCF0935,VCF0936,VCF0941, VCF0942, VCF0943, VCF0944, VCF0945 , VCF0946 ,VCF0947, VCF0948, VCF0949,VCF9064,VCF0717,VCF0723,VCF0723a,VCF0746,VCF0747 ,VCF9021 ,VCF9030,VCF9030a,
-VCF0701 ,VCF0702 , VCF0703 , VCF0704 , VCF0704a , VCF0705, VCF0706, VCF0707 , VCF0711, VCF0708, VCF0713 , VCF0712, VCF0748, VCF0749,VCF0750,VCF9022,VCF9023,VCF0675,VCF0724,VCF0725,VCF0726,VCF0727,VCF0728,VCF0744,VCF0745,VCF9032,VCF9033,VCF9034,VCF9035, VCF9266, VCF0102, VCF0104, VCF9222, VCF0880, VCF9229, VCF0606, VCF9030a, VCF0322, VCF9206, VCF0105b, VCF0009z, VCF0900b))
+```{r}
+Updated1 %>% 
+  # The labels confuse this function, so we'll remove them before calling skim()
+  zap_labels() %>% 
+  select(
+    VCF9021,
+    VCF9030a,
+    VCF0728,
+    VCF0745,
+    VCF9034,
+    VCF0724,
+    VCF0301,
+    VCF9206,
+    VCF9222,
+    VCF0870,
+    VCF0880,
+    VCF9225,
+    VCF9229,
+    VCF0606,
+    VCF0607,
+    VCF0611,
+    VCF0613,
+    VCF0617,
+    VCF0632,
+    VCF0650,
+    VCF0501,
+    VCF0731,
+    VCF0733,
+    VCF0310,
+    VCF0312,
+    VCF0311,
+    VCF0653,
+    VCF0359,
+    VCF0360,
+    VCF0361,
+    VCF0370,
+    VCF0371,
+    VCF0372,
+    VCF0373,
+    VCF0702
+  ) %>% 
+  skim()
+
 ```
 
 #Filter out the columns that are not relevant- have all missings (questions from older surveys (two ways)
 
-```
-Updated_data <- Condensed_weights [ , colSums(is.na(Filtered)) <nrow(Filtered)]
-
-data_new3 <- Filtered [ , colSums(is.na(Filtered)) <nrow(Filtered)]
-```
-
-#attach to frame- checking for missings + descriptive stats
+```{r}
+Data_no_missing <- Updated1[ , colSums(is.na(Updated1)) <nrow(Updated1)]
 
 ```
-attach(Condensed_weights)
-summary (VCF9021)
-summary (VCF9030a)
-summary (VCF0728)
-summary (VCF0745)
-summary (VCF9034)
-summary (VCF0724)
-summary (VCF0301)
-summary (VCF9206)
-summary (VCF9222)
-summary (VCF0870)
-summary (VCF0880)
-summary (VCF9225)
-summary (VCF9229)
-summary (VCF0606)
-summary (VCF0607)
-summary (VCF0611)
-summary (VCF0613)
-summary (VCF0617)
-summary (VCF0632)
-summary (VCF0650)
-summary (VCF0501)
-summary (VCF0731)
-summary (VCF0733)
-summary (VCF0310)
-summary (VCF0312)
-summary (VCF0311)
-summary (VCF0653)
-summary (VCF0359)
-summary (VCF0360)
-summary (VCF0361)
-summary (VCF0370)
-summary (VCF0371)
-summary (VCF0372)
-summary (VCF0373)
-summary(VCF0702)
+
+#attach to frame- Filter Columns want
+
+```
+
+Filtered_var = subset(Data_no_missing, select = c(VCF0004, VCF0102, VCF0103, VCF0104,VCF0105a, VCF0105b,VCF0106,VCF0107, VCF0700,VCF0201,VCF0202, VCF0301 ,VCF0303, VCF0314 ,VCF0315 ,VCF0323 ,VCF0501,VCF9008,VCF9010 ,VCF9011,VCF9012, VCF9201,VCF9202 ,VCF9203,VCF9204,VCF9206,VCF0350 ,VCF0351 ,VCF0352,VCF0353 , VCF0354 ,VCF0355,VCF0356 ,VCF0357 ,VCF0358 ,VCF0363 ,VCF0364,VCF0365 ,VCF0366 ,VCF0367, VCF0368 ,VCF0369 ,VCF0370,VCF0371 ,VCF0372,VCF0373 ,VCF0412 ,VCF0414 ,VCF0906 ,VCF0907,VCF0908 ,VCF0909 ,VCF0450,VCF0451,VCF9217,VCF9218,  VCF9220,VCF9221,VCF0875 ,VCF0875a ,VCF0875b ,VCF9019,VCF9020 ,VCF9052,VCF9222,VCF0803,VCF9240, VCF0228 ,VCF0231 ,VCF0601,VCF0602, VCF0603, VCF0604 ,VCF0608 ,VCF0656,VCF9250,VCF9251,VCF9252,VCF9253,VCF9254,VCF9256,VCF9257,VCF0308,VCF0309,
+  VCF0310,VCF0311,VCF0312,VCF0313,VCF0700,VCF0714,VCF0729 ,VCF0730,VCF0731,VCF0732,VCF0733,VCF0743,VCF0932,VCF0933,VCF0934,VCF0935,VCF0936,VCF0941, VCF0942, VCF0943, VCF0944, VCF0945 , VCF0946 ,VCF0947, VCF0948, VCF0949,VCF9064,VCF0717,VCF0723,VCF0723a,VCF0746,VCF0747 ,VCF9021 ,VCF9030,VCF9030a,
+VCF0701 ,VCF0702 , VCF0703 , VCF0704 , VCF0704a , VCF0705, VCF0706, VCF0707 , VCF0711, VCF0708, VCF0713 , VCF0712, VCF0748, VCF0749,VCF0750,VCF9022,VCF9023,VCF0675,VCF0724,VCF0725,VCF0726,VCF0727,VCF0728,VCF0744,VCF0745,VCF9032,VCF9033,VCF9034,VCF9035, VCF9266, VCF0102, VCF0104, VCF9222, VCF0880, VCF9229, VCF0606, VCF9030a, VCF0322, VCF9206, VCF0105b, VCF0009z, VCF0900b))
+
+summary(Condensed_var)
+
 ```
 
 #Add Labels
-
-```
-names(Condensed_weights)[names(Condensed_weights) == "VCF0301"] <- "Party Identification of Respondent-7-point Scale"
-Condensed_weights
+names(Updated1)[names(Updated1) == "VCF0301"] <- "Party Identification of Respondent-7-point Scale"
+Updated1
 ```
 
 #Tables/Cross Tabs
 
 #Voted
+```{r}
+
 table(VCF0702)
 
 #Voted-Contacted by a Major Party?
@@ -118,7 +128,6 @@ table(VCF0702)
 Table1 <- table(VCF0702, VCF9030a) 
 
 #Diff b/w parties?
-```
 table(VCF0501)
 
 table(VCF0702, VCF0501)
@@ -198,7 +207,8 @@ Pred_Close
 ```
 
 #Correlation
-```
+```{r}
+
 res <- cor.test(VCF0702, VCF0102, 
                 method = "pearson")
 res
@@ -206,64 +216,43 @@ res
 
 #rename variables 
 
-```
-attach(Condensed_weights)
+```{r}
 
-names(Condensed_weights)[names(Condensed_weights)=="VCF0102"] <- "Age"
-names(Condensed_weights)[names(Condensed_weights)=="VCF0104"] <- "Gender"
-names(Condensed_weights)[names(Condensed_weights)=="VCF9229"] <- "UE"
-names(Condensed_weights)[names(Condensed_weights)=="VCF0880"] <- "Better_worse"
-names(Condensed_weights)[names(Condensed_weights)=="VCF0606"] <- "FED_Tax"
-names(Condensed_weights)[names(Condensed_weights)=="VCF0501"] <- "Bw_parties"
-names(Condensed_weights)[names(Condensed_weights)=="VCF9030a"] <- "contacted_by_party"
-names(Condensed_weights)[names(Condensed_weights)=="VCF9206"] <- "control_split"
-names(Condensed_weights)[names(Condensed_weights)=="VCF0105b"] <- "Race"
-names(Condensed_weights)[names(Condensed_weights)=="VCF9222"] <- "Country_direction"
-```
+Data_renamed_var <- Data_no_missing %>% 
+  rename(
+    Age = VCF0102,
+    Gender = VCF0104,
+    Better_worse = VCF0880,
+    FED_Tax = VCF0606,
+    Bw_parties = VCF0501,
+    contacted_by_party = VCF9030a,
+    control_split = VCF9206,
+    Race = VCF0105b,
+    Country_direction = VCF9222)
 summary(Age)
+
+```
 
 #Regressions
 
 #creating dummy variables 
 
+```{r}
+Data_renamed_var_w_dummies <- Data_renamed_var %>% 
+mutate(
+    Age_Dummy = factor(Age),
+    Gender_DV = factor(Gender),
+    Better_worse_dummy = factor(Better_worse),
+    FED_Gov_tax_dummy = factor(FED_Tax),
+    bw_parties_DV = factor(Bw_parties),
+    Contacted_by_party_DV = factor(contacted_by_party),
+    Control_split_DV = factor(control_split),
+    Race_DV = factor(Race),
+    Dummy_dep_voting = ifelse (VCF0702 > 1, 1, 0),
+    Dummy_right_dir = ifelse (Country_direction > 1, 0, 1),
+  )
+
+reg_1st_results <- lm(Dummy_dep_voting ~ Age_DV + Gender_DV  + Better_worse_dummy  + FED_Gov_tax_dummy + bw_parties_DV  + Contacted_by_party_DV  + Control_split_DV + Dummy_right_dir+ Race_DV, weights= VCF0009z, data=Data_no_missing)
+summary(reg_1st_results)
 ```
-summary("Gender")
-Age_Dummy <- factor(Age)
-is.factor(Age_Dummy)
-
-Gender_DV <- factor("Gender")
-is.factor(Gender_DV)
-
-Future_UE_Var <- factor("UE")
-is.factor(Future_UE_Var)
-
-Better_worse_dummy <- factor("Better_worse")
-is.factor(Better_worse_dummy)
-
-FED_Gov_tax_dummy <- factor("FED_Tax")
-is.factor(FED_Gov_tax_dummy)
-
-bw_parties_DV <- factor("Bw_parties")
-is.factor(bw_parties_DV)
-
-Contacted_by_party_DV <- factor("contacted_by_party")
-is.factor(Contacted_by_party_DV)
-
-Control_split_DV <- factor("control_split")
-is.factor(Control_split_DV)
-
-Race_DV <- factor("Race")
-is.factor(Race_DV)
-
-Dummy_dep_voting <- ifelse (VCF0702 > 1, 1, 0)
-summary (Dummy_dep)
-
-Dummy_right_dir <- ifelse ("Country_direction" > 1, 0, 1)
-summary (Dummy_right_dir)
-
-reg_Dummyvar <- lm(Dummy_dep ~ Age_Dummy + Gender_DV + Dummy_right_dir + Better_worse_dummy + Future_UE_Var + FED_Gov_tax_dummy + bw_parties_DV  + Contacted_by_party_DV + Control_split_DV + Race_DV, weights= VCF0009z, data=Condensed_weights)
-summary(reg_Dummyvar)
-```
-
-
 
