@@ -1,8 +1,16 @@
 ---
+title: "MZ Review"
+author: "Mendel Zecher"
+date: "7/01/2020"
 output:
-  pdf_document: default
+  word_document: default
   github_document: default
+  pdf_document: default
 ---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
 
 #Install packages if first time
 ```{r eval=FALSE}
@@ -18,6 +26,10 @@ install.packages('gdata')
 install.packages("skimr")
 ```
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
 #Read in Packages needed
 ```{r message=FALSE}
 library(dplyr) # manipulate dataframes
@@ -30,229 +42,174 @@ library(ggpubr) # for Correlation
 library(ggplot2) # for Plots
 library ('car')
 library ('gdata')
-library(skimr) 
+library('skimr') 
 ```
 
 #Import the data- ANES Survey Timeseries
+
+# Unzip the ANES data if needed
+```{r}
+source("unzip-anes-data.R")
+```
+
 ```{r}
 library(haven)
 anes_timeseries_cdf_stata13 <- read_dta("data-raw/anes_timeseries_cdf_stata13.dta")
 ```
-
-#Filter to 2004
-
+# Filtering for the right years 
 ```{r}
-Updated1 <-anes_timeseries_cdf_stata13[!(anes_timeseries_cdf_stata13$VCF0004<"2004"),]
+June_DS <-anes_timeseries_cdf_stata13[!(anes_timeseries_cdf_stata13$VCF0004<"2004"),]
 ```
 
-# select variables 
-
 ```{r}
-Updated1 %>% 
-  # The labels confuse this function, so we'll remove them before calling skim()
+# Removing Labels
+
+June_DS %>% 
   zap_labels() %>% 
   select(
-    VCF9021,
-    VCF9030a,
-    VCF0728,
-    VCF0745,
-    VCF9034,
-    VCF0724,
-    VCF0301,
-    VCF9206,
-    VCF9222,
-    VCF0870,
-    VCF0880,
-    VCF9225,
-    VCF9229,
-    VCF0606,
-    VCF0607,
-    VCF0611,
-    VCF0613,
-    VCF0617,
-    VCF0632,
-    VCF0650,
+    VCF0102,
+    VCF0104, 
+    VCF0880, 
+    VCF0606, 
     VCF0501,
-    VCF0731,
-    VCF0733,
-    VCF0310,
-    VCF0312,
-    VCF0311,
-    VCF0653,
-    VCF0359,
-    VCF0360,
-    VCF0361,
-    VCF0370,
-    VCF0371,
-    VCF0372,
-    VCF0373,
-    VCF0702
+    VCF9030a,
+    VCF9206, 
+    VCF0105b, 
+    VCF0450, 
+    VCF0301,  
+    VCF9206, 
+    VCF9202,
+    VCF0358, 
+    VCF0360, 
+    VCF0370, 
+    VCF0372, 
+    VCF9253, 
+    VCF0714, 
+    VCF9256, 
+    VCF0900b, 
+    VCF0114, 
+    VCF9021,  
+    VCF9030b,
+    VCF9030c,	  
+    VCF9222, 
+    VCF0901a,
+    VCF0009z,
+    VCF0702,
   ) %>% 
   skim()
 
 ```
 
-#Filter out the columns that are not relevant- have all missings (questions from older surveys (two ways)
-
-```{r}
-Data_no_missing <- Updated1[ , colSums(is.na(Updated1)) <nrow(Updated1)]
-
-```
-
-#attach to frame- Filter Columns want
-
-```
-
-Filtered_var = subset(Data_no_missing, select = c(VCF0004, VCF0102, VCF0103, VCF0104,VCF0105a, VCF0105b,VCF0106,VCF0107, VCF0700,VCF0201,VCF0202, VCF0301 ,VCF0303, VCF0314 ,VCF0315 ,VCF0323 ,VCF0501,VCF9008,VCF9010 ,VCF9011,VCF9012, VCF9201,VCF9202 ,VCF9203,VCF9204,VCF9206,VCF0350 ,VCF0351 ,VCF0352,VCF0353 , VCF0354 ,VCF0355,VCF0356 ,VCF0357 ,VCF0358 ,VCF0363 ,VCF0364,VCF0365 ,VCF0366 ,VCF0367, VCF0368 ,VCF0369 ,VCF0370,VCF0371 ,VCF0372,VCF0373 ,VCF0412 ,VCF0414 ,VCF0906 ,VCF0907,VCF0908 ,VCF0909 ,VCF0450,VCF0451,VCF9217,VCF9218,  VCF9220,VCF9221,VCF0875 ,VCF0875a ,VCF0875b ,VCF9019,VCF9020 ,VCF9052,VCF9222,VCF0803,VCF9240, VCF0228 ,VCF0231 ,VCF0601,VCF0602, VCF0603, VCF0604 ,VCF0608 ,VCF0656,VCF9250,VCF9251,VCF9252,VCF9253,VCF9254,VCF9256,VCF9257,VCF0308,VCF0309,
-  VCF0310,VCF0311,VCF0312,VCF0313,VCF0700,VCF0714,VCF0729 ,VCF0730,VCF0731,VCF0732,VCF0733,VCF0743,VCF0932,VCF0933,VCF0934,VCF0935,VCF0936,VCF0941, VCF0942, VCF0943, VCF0944, VCF0945 , VCF0946 ,VCF0947, VCF0948, VCF0949,VCF9064,VCF0717,VCF0723,VCF0723a,VCF0746,VCF0747 ,VCF9021 ,VCF9030,VCF9030a,
-VCF0701 ,VCF0702 , VCF0703 , VCF0704 , VCF0704a , VCF0705, VCF0706, VCF0707 , VCF0711, VCF0708, VCF0713 , VCF0712, VCF0748, VCF0749,VCF0750,VCF9022,VCF9023,VCF0675,VCF0724,VCF0725,VCF0726,VCF0727,VCF0728,VCF0744,VCF0745,VCF9032,VCF9033,VCF9034,VCF9035, VCF9266, VCF0102, VCF0104, VCF9222, VCF0880, VCF9229, VCF0606, VCF9030a, VCF0322, VCF9206, VCF0105b, VCF0009z, VCF0900b))
-
-summary(Condensed_var)
-
-```
-
-#Add Labels
-names(Updated1)[names(Updated1) == "VCF0301"] <- "Party Identification of Respondent-7-point Scale"
-Updated1
-```
-
-#Tables/Cross Tabs
-
-#Voted
+# Filtering the Dataset for the right variables
 ```{r}
 
-table(VCF0702)
-
-#Voted-Contacted by a Major Party?
-
-Table1 <- table(VCF0702, VCF9030a) 
-
-#Diff b/w parties?
-table(VCF0501)
-
-table(VCF0702, VCF0501)
-
-Dem_Voters <- table(VCF0702, VCF0314)
-round(prop.table(Dem_Voters,1),2)
-
-Diff_parties <- table(VCF0702, VCF0501)
-Diff_parties
-round(prop.table(Diff_parties,1),2)
-
-(#Less incentivized to vote if think there the same)
-
-Dislike_DEM <- table(VCF0702, VCF9201)
-Dislike_DEM
-
-Dislike_REP <- table(VCF0702, VCF9202)
-
-Rep_views <- table(VCF0702, VCF9203)
-round(prop.table(Rep_views,1),2)
-
-which_party <- table(VCF0702, VCF9204)
-round(prop.table(which_party,1),2)
-
-Party_pref <- table(VCF0702, VCF9206)
-round(prop.table(Party_pref,1),2)
-
-Dem_Smart <- table(VCF0702, VCF0350)
-round(prop.table(Dem_Smart,1),2)
-
-Dem_Angry <- table(VCF0702, VCF0358)
-round(prop.table(Dem_Angry,1),2)
-
-REP_Angry <- table(VCF0702, VCF0370)
-round(prop.table(REP_Angry,1),2)
-
-Approve_Pres <- table(VCF0702, VCF0450)
-round(prop.table(Approve_Pres,1xs),2)
-
-Approve_Pres_rating <- table(VCF0702, VCF0451)
-round(prop.table(Approve_Pres_rating,1),2)
-
-Pres_Econ <- table(VCF0702, VCF9220)
-round(prop.table(Pres_Econ,1),2)
-
-Right_Track <- table(VCF0702, VCF9222)
-round(prop.table(Right_Track,1),2)
-
-LIB_CON <- table(VCF0702, VCF0803)
-round(prop.table(LIB_CON,1),2)
-
-Trust_Fed_Gov <- table(VCF0702, VCF0604)
-round(prop.table(Trust_Fed_Gov,1),2)
-
-Crooked_FED <- table(VCF0702, VCF0608)
-round(prop.table(Crooked_FED,1),2)
-
-TRUST_GOV_GEN <- table(VCF0702, VCF0656)
-round(prop.table(TRUST_GOV_GEN,1),2)
-
-Volunteer <- table(VCF0702, VCF9256)
-round(prop.table(Volunteer,1),2)
-
-Interst_Elec <- table(VCF0702, VCF0310)
-round(prop.table(Interst_Elec,1),2)
-
-Care_win <- table(VCF0702, VCF0311)
-round(prop.table(Care_win,1),2)
-
-Care_win_CONG <- table(VCF0702, VCF0312)
-round(prop.table(Care_win_CONG,1),2)
-
-Pred_Close <- table(VCF0702, VCF0714)
-round(prop.table(Pred_Close,1),2)
-
-Pred_Close
+June_DS_30 = subset(June_DS, select = c(VCF0102,
+    VCF0104,
+    VCF0702,
+    VCF0880, 
+    VCF0606, 
+    VCF0501,
+    VCF9030a,
+    VCF9206, 
+    VCF0105b, 
+    VCF0450, 
+    VCF0301,  
+    VCF9202,
+    VCF0358, 
+    VCF0360, 
+    VCF0370, 
+    VCF0372, 
+    VCF0714, 
+    VCF9256, 
+    VCF0900b, 
+    VCF0114, 
+    VCF9030b,
+    VCF9030c,	  
+    VCF9222,
+    VCF9201,
+     VCF0901a,
+    VCF0009z))
 ```
 
-#Correlation
+# Dealing w/ missings
 ```{r}
 
-res <- cor.test(VCF0702, VCF0102, 
-                method = "pearson")
-res
+mutate(June_DS_30, VCF0501 = is.na, 9)
+
+Replace_MISS <- June_DS_30$VCF0501[June_DS_30$VCF0501==is.na] <- 9
+
+Replace_MISS <- June_DS_30(VCF0501 = c(NA, 9))
+
 ```
 
-#rename variables 
 
 ```{r}
 
-Data_renamed_var <- Data_no_missing %>% 
-  rename(
+Final_DS <- June_DS_30 %>% 
+    rename(
+    control_split = VCF9206,
+    Voted_Y_N = VCF0702,
+    Race = VCF0105b,
+    Weights = VCF0009z,
+    Dem_Pres_Angry = VCF0358,
+    Dem_Pres_hopeful= VCF0360,
+    Rep_Pres_Angry = VCF0370,
+    Rep_Pres_hopeful = VCF0372,
+    Election_Close = VCF0714,
     Age = VCF0102,
     Gender = VCF0104,
     Better_worse = VCF0880,
     FED_Tax = VCF0606,
     Bw_parties = VCF0501,
     contacted_by_party = VCF9030a,
-    control_split = VCF9206,
-    Race = VCF0105b,
-    Country_direction = VCF9222)
-summary(Age)
+    Volunteer_work = VCF9256,
+    State_CD = VCF0900b,
+    Income = VCF0114,
+    Contacted_Dem_Party = VCF9030b,
+    Contacted_Rep_Party =VCF9030c,	 	 	 		
+		Country_direction = VCF9222,
+    State = VCF0901a,
+		Approve_President = VCF0450, 
+    Party = VCF0301,
+		Like_dislike_Rep_party = VCF9202,
+		Like_dislike_Dem_party = VCF9201
+)
 
 ```
+attach(June_DS_30)
+n_perc(June_DS_30$VCF0702 == 0)
 
-#Regressions
-
-#creating dummy variables 
-
+# Creating Dummy Variables
 ```{r}
-Data_renamed_var_w_dummies <- Data_renamed_var %>% 
-mutate(
+   
+    Final_DS_DV <- Final_DS %>% 
+    mutate(
     Age_Dummy = factor(Age),
     Gender_DV = factor(Gender),
-    Better_worse_dummy = factor(Better_worse),
-    FED_Gov_tax_dummy = factor(FED_Tax),
     bw_parties_DV = factor(Bw_parties),
     Contacted_by_party_DV = factor(contacted_by_party),
     Control_split_DV = factor(control_split),
     Race_DV = factor(Race),
-    Dummy_dep_voting = ifelse (VCF0702 > 1, 1, 0),
-    Dummy_right_dir = ifelse (Country_direction > 1, 0, 1),
+    Election_Close_DV = factor(Election_Close),
+    Better_worse_DV = factor(Better_worse),
+    contacted_by_party_DV = factor(contacted_by_party),
+    Volunteer_DV = ifelse (Volunteer_work > 1, 1, 0),
+    Income_DV = factor(Income),
+    Appove_Pres = factor(Approve_President),
+    Voted_Y_N_DV = ifelse (Voted_Y_N > 1, 1, 0),
+    Country_direction_DV = ifelse (Country_direction > 1, 0, 1)
   )
+```  
 
-reg_1st_results <- lm(Dummy_dep_voting ~ Age_DV + Gender_DV  + Better_worse_dummy  + FED_Gov_tax_dummy + bw_parties_DV  + Contacted_by_party_DV  + Control_split_DV + Dummy_right_dir+ Race_DV, weights= VCF0009z, data=Data_no_missing)
-summary(reg_1st_results)
-```
+
+# Regression 
+```{r}
+
+reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Better_worse_DV +Volunteer_DV  + Income_DV + Country_direction_DV, weights= Weights, data=Final_DS_DV)
+
+summary(reg_DV)
+
+
+``` 
+
 
