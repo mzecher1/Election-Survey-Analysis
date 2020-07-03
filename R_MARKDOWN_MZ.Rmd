@@ -53,6 +53,7 @@ source("unzip-anes-data.r")
 
 ```{r}
 library(haven)
+
 anes_timeseries_cdf_stata13 <- read_dta("data-raw/anes_timeseries_cdf_stata13.dta")
 ```
 # Filtering for the right years 
@@ -98,6 +99,10 @@ June_DS %>%
     VCF0360,
     VCF0370,
     VCF0372,
+    VCF0359,
+     VCF0361,
+      VCF0371,
+       VCF0373,
     VCF0702,
   ) %>% 
   skim()
@@ -132,7 +137,15 @@ July_DS_1 = subset(June_DS, select = c(VCF0102,
     VCF9030b,
     VCF9030c,	  
     VCF9222,
-    VCF9021,
+    VCF0359,
+    VCF0361,
+    VCF0371,
+    VCF0373,
+    VCF0359,
+    VCF0361,
+    VCF0371,
+    VCF0373,
+    VCF9021,'
     VCF9201,
     VCF0901a,
     VCF0009z))
@@ -188,6 +201,10 @@ July_DS_1 <- July_DS_1 %>%
 		Anyone_talk_vote = VCF9021,
 		Like_dislike_Rep_party = VCF9202,
 		YEAR = VCF0004, 
+		Dem_Pres_Afraid = VCF0359,
+    Dem_Pres_Proud VCF0361,
+    Rep_Pres_Afraid = VCF0371,
+    Rep_Pres_Proud = VCF0373,
 		Like_dislike_Dem_party = VCF9201
 )
 
@@ -212,6 +229,10 @@ July_DS_1 <- July_DS_1 %>%
     Dem_Pres_hopeful_DV =factor(Dem_Pres_hopeful),
     Rep_Pres_Angry_DV = factor(Rep_Pres_Angry),
     Rep_Pres_hopeful_DV = factor(Rep_Pres_hopeful),
+    Dem_Pres_Afraid_DV = factor(Dem_Pres_Afraid),
+    Dem_Pres_Proud_DV = factor (Dem_Pres_Proud),
+    Rep_Pres_Afraid_DV = factor(Rep_Pres_Afraid),
+    Rep_Pres_Proud_DV = factor(Rep_Pres_Proud),
     Election_Close_DV = factor(Election_Close),
     Better_worse_DV = factor(Better_worse),
     contacted_by_party_DV = factor(contacted_by_party),
@@ -239,7 +260,7 @@ names(Data_State_rank)
 ```{r}
 reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights= Weights, data=Final_DS_DV)
 
-reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING +  Country_direction_DV, weights= Weights,data=Data_State_rank)
+reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING + Rep_Pres_Afraid_DV + Country_direction_DV, weights= Weights,data=Data_State_rank)
 
 summary(reg_wsr)
 
