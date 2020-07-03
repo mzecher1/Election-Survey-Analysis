@@ -26,7 +26,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("skimr")
 ```
 
-
 # Read in Packages needed
 ```{r message=FALSE}
 library(readr) # read/write dataframes
@@ -284,11 +283,13 @@ Data_State_rank %>% janitor::tabyl(Voted_Y_N, Bw_parties, Dem_Pres_Afraid)
 ```{r}
 reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + bw_parties_DV + Volunteer_work_DV + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights = Weights, data = Final_DS_DV)
 
-reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + bw_parties_DV + Volunteer_work_DV + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING + Rep_Pres_Afraid_DV + Country_direction_DV, weights = Weights, data = Data_State_rank)
+reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  + Country_direction_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_by_party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Volunteer_work_DV   + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Afraid_DV + Rep_Pres_Proud_DV  + Interest_elec_DV  + RANKING +PercentDiff, weights= Weights,data=Data_State_rank)
 
 summary(reg_wsr)
 
 summary(reg_DV)
+skim(Data_State_rank)
+summary(Data_State_rank$PercentDiff)
 ``` 
 
 ```{r}
@@ -310,6 +311,9 @@ Dislike_DEM <- table(VCF0702, VCF9201)
 Dislike_DEM
 
 Dislike_REP <- table(VCF0702, VCF9202)
+
+Diff_parties
+round(prop.table(Diff_parties, 1), 2)
 
 Rep_views <- table(VCF0702, VCF9203)
 round(prop.table(Rep_views, 1), 2)
