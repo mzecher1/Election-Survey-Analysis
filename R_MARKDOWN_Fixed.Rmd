@@ -5,7 +5,7 @@ output:
   word_document: default
 ---
 
-```r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Would not knit with this code- need to fix
 ```
@@ -24,7 +24,7 @@ install.packages('gdata')
 install.packages("skimr")
 ```
 
-```r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -235,10 +235,12 @@ names(Data_State_rank)
 
 ```
 
-With_State_rank_fil = subset(With_State_rank, select = c(YEAR, State, RANKING, Percent Diff))
+```{r}
+With_State_rank_fil = subset(With_State_rank, select = c(YEAR, State, RANKING, `Percent Diff`))
 names(With_State_rank)
 
 summary(Voter_Access_Comp_Rankings$Ranking)
+```
 
 # Regression 
 ```{r}
@@ -257,7 +259,7 @@ plot(reg_DV)
 
 ``` 
 
-```{r
+```{r}
 # Not working with knit- (seemed to work otherwise)
 Table1 <- table(Voted_Y_N, Race) 
 
@@ -351,3 +353,4 @@ myfile <- "https://github.com/wagner-mspp-2020/mz2733/blob/master/Voter%20Access
 
 Voter_rank = read.csv (myfile) 
 
+```

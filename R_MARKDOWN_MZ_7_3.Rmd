@@ -5,42 +5,45 @@ output:
   word_document: default
 ---
 
-```r setup, include=FALSE}
+```{r} setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Would not knit with this code- need to fix
 ```
 
-#Install packages if first time
+# Install packages if first time
+
 ```{r eval=FALSE}
-install.packages('dplyr')
-install.packages('readr')
-install.packages('tidyr')
-install.packages('stringr')
-install.packages('forcats')
-install.packages('purr')
-install.packages("ggpubr")
-install.packages('car')
-install.packages('gdata')
-install.packages("skimr")
+# Best to leave these commented out
+# install.packages('dplyr')
+# install.packages('readr')
+# install.packages('tidyr')
+# install.packages('stringr')
+# install.packages('forcats')
+# install.packages('purr')
+# install.packages("ggpubr")
+# install.packages('car')
+# install.packages('gdata')
+# install.packages("skimr")
 ```
 
-```r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
-#Read in Packages needed
+# Read in Packages needed
 ```{r message=FALSE}
-library(dplyr) # manipulate dataframes
 library(readr) # read/write dataframes
 library(tidyr) # reshaping dataframes
 library(stringr) # string manipulation
 library(forcats) # factor manipulation
 library(purrr) # iteration (instead of loops)
 library(ggpubr) # for Correlation
-library('ggplot2') # for Plots
-library ('car')
-library ('gdata')
-library('skimr') 
+library("ggplot2") # for Plots
+library("car")
+library("gdata")
+library("skimr")
+library(readxl)
+library(dplyr) # manipulate dataframes
+
+# Helpful package for data cleaning - tables and duplicate records checks
+library(janitor) # install.packages("janitor")
 ```
 
 # Does not read this- need to fix data import for reproducibilty
@@ -54,44 +57,46 @@ source("unzip-anes-data.r")
 ```{r}
 library(haven)
 
-anes_timeseries_cdf_stata13 <- read_dta("data-raw/anes_timeseries_cdf_stata13.dta")
+anes_timeseries_cdf_stata13 <- read_dta("data-raw/anes_timeseries_cdf_stata13.dta") %>% 
+  zap_labels() %>% 
+  zap_formats()
 ```
 # Filtering for the right years 
 ```{r}
-June_DS <-anes_timeseries_cdf_stata13[!(anes_timeseries_cdf_stata13$VCF0004<"2004"),]
+June_DS <- anes_timeseries_cdf_stata13[!(anes_timeseries_cdf_stata13$VCF0004 < "2004"), ]
 ```
 
 ```{r}
 # Removing Labels
 
-June_DS %>% 
-  zap_labels() %>% 
+June_DS %>%
+  zap_labels() %>%
   select(
     VCF0102,
-    VCF0104, 
-    VCF0880, 
-    VCF0606, 
+    VCF0104,
+    VCF0880,
+    VCF0606,
     VCF0501,
     VCF9030a,
-    VCF9206, 
-    VCF0105b, 
-    VCF0450, 
-    VCF0301,  
-    VCF9206, 
+    VCF9206,
+    VCF0105b,
+    VCF0450,
+    VCF0301,
+    VCF9206,
     VCF9202,
-    VCF0358, 
-    VCF0360, 
-    VCF0370, 
-    VCF0372, 
-    VCF9253, 
-    VCF0714, 
-    VCF9256, 
-    VCF0900b, 
-    VCF0114, 
-    VCF9021,  
+    VCF0358,
+    VCF0360,
+    VCF0370,
+    VCF0372,
+    VCF9253,
+    VCF0714,
+    VCF9256,
+    VCF0900b,
+    VCF0114,
+    VCF9021,
     VCF9030b,
-    VCF9030c,	  
-    VCF9222, 
+    VCF9030c,
+    VCF9222,
     VCF0901a,
     VCF0009z,
     VCF0310,
@@ -100,86 +105,74 @@ June_DS %>%
     VCF0370,
     VCF0372,
     VCF0359,
-     VCF0361,
-      VCF0371,
-       VCF0373,
+    VCF0361,
+    VCF0371,
+    VCF0373,
     VCF0702,
-  ) %>% 
+  ) %>%
   skim()
-
 ```
 
-# Filtering the Dataset for the right variables
+Filtering the Dataset for the right variables
+
+Dealing w/ missings # For many of the categories I added a "Dummy" category to signal the question was unanswered. If the regression shows these dummies are not significant, can assume that these missings were not strongly biased in a direction. 
+
 ```{r}
 
-July_DS_1 = subset(June_DS, select = c(VCF0102,
+July_DS_1 <- June_DS %>% 
+  select(
+    VCF0004, 
+    VCF0006,
+    VCF0009z,
+    VCF0102,
     VCF0104,
-    VCF0004,
-    VCF0702,
-    VCF0880, 
-    VCF0606, 
-    VCF0501,
-    VCF9030a,
-    VCF9206, 
-    VCF0105b, 
-    VCF0450, 
-    VCF0301,  
-    VCF9202,
-    VCF0358, 
-    VCF0360, 
-    VCF0370,
+    VCF0105b,
+    VCF0114,
+    VCF0301,
     VCF0310,
-    VCF0372, 
-    VCF0714, 
-    VCF9256, 
-    VCF0900b, 
-    VCF0114, 
-    VCF9030b,
-    VCF9030c,	  
-    VCF9222,
+    VCF0358,
     VCF0359,
+    VCF0360,
     VCF0361,
+    VCF0370,
     VCF0371,
+    VCF0372,
     VCF0373,
-    VCF0359,
-    VCF0361,
-    VCF0371,
-    VCF0373,
-    VCF9021,'
-    VCF9201,
+    VCF0450,
+    VCF0501,
+    VCF0606,
+    VCF0702,
+    VCF0714,
+    VCF0880,
+    VCF0900b,
     VCF0901a,
-    VCF0009z))
-```
-
-# Dealing w/ missings # For many of the categories I added a "Dummy" category to signal the question was unanswered. If the regression shows these dummies are not significant, can assume that these missings were not strongly biased in a direction. 
-```{r}
-
-July_DS_1 <- July_DS_1 %>%
-   mutate(
-   VCF0501 = replace_na(VCF0501, 9),
+    VCF9021,
+    VCF9030a,
+    VCF9030b,
+    VCF9030c,
+    VCF9201,
+    VCF9202,
+    VCF9206,
+    VCF9222,
+    VCF9256
+) %>%
+  dplyr::mutate(
+    VCF0501 = replace_na(VCF0501, 9),
     VCF9256 = replace_na(VCF9256, 3),
-    VCF9030b =  replace_na(VCF9030b, 3),
-    VCF9030c =  replace_na(VCF9030c, 3),
+    VCF9030b = replace_na(VCF9030b, 3),
+    VCF9030c = replace_na(VCF9030c, 3),
     VCF0114 = replace_na(VCF0114, 6),
     VCF0310 = replace_na(VCF0310, 9),
-    VCF9021 =  replace_na(VCF9021, 3))
-        
-
-```
-  
-summary("Gender")
-
-```{r}
- 
-July_DS_1 <- July_DS_1 %>% 
-    rename(
+    VCF9021 = replace_na(VCF9021, 3)
+  ) %>% 
+  rename(
     control_split = VCF9206,
     Voted_Y_N = VCF0702,
     Race = VCF0105b,
     Interest_Elec = VCF0310,
     Weights = VCF0009z,
     Dem_Pres_Angry = VCF0358,
-    Dem_Pres_hopeful= VCF0360,
+    Dem_Pres_hopeful = VCF0360,
     Rep_Pres_Angry = VCF0370,
     Rep_Pres_hopeful = VCF0372,
     Election_Close = VCF0714,
@@ -193,44 +186,47 @@ July_DS_1 <- July_DS_1 %>%
     State_CD = VCF0900b,
     Income = VCF0114,
     Contacted_Dem_Party = VCF9030b,
-    Contacted_Rep_Party =VCF9030c,	 	 	 		
-		Country_direction = VCF9222,
+    Contacted_Rep_Party = VCF9030c,
+    Country_direction = VCF9222,
     State = VCF0901a,
-		Approve_President = VCF0450, 
+    Approve_President = VCF0450,
     Party = VCF0301,
-		Anyone_talk_vote = VCF9021,
-		Like_dislike_Rep_party = VCF9202,
-		YEAR = VCF0004, 
-		Dem_Pres_Afraid = VCF0359,
-    Dem_Pres_Proud VCF0361,
+    Anyone_talk_vote = VCF9021,
+    Like_dislike_Rep_party = VCF9202,
+    YEAR = VCF0004,
+    Dem_Pres_Afraid = VCF0359,
+    Dem_Pres_Proud = VCF0361,
     Rep_Pres_Afraid = VCF0371,
     Rep_Pres_Proud = VCF0373,
-		Like_dislike_Dem_party = VCF9201
-)
+    Like_dislike_Dem_party = VCF9201
+  )
+```
 
+```{r}
+summary("Gender")
 ```
 
 
 # Creating Dummy Variables
 ```{r}
-   
-    Final_DS_DV <- July_DS_1 %>% 
-    mutate(
+
+Final_DS_DV <- July_DS_1 %>%
+  mutate(
     Age_Dummy = factor(Age),
     Interest_elec_DV = factor(Interest_Elec),
     Gender_DV = factor(Gender),
     bw_parties_DV = factor(Bw_parties),
     Contacted_by_party_DV = factor(contacted_by_party),
     Contacted_Dem_Party_DV = factor(Contacted_Dem_Party),
-    Contacted_Rep_Party_DV= factor(Contacted_Rep_Party),
+    Contacted_Rep_Party_DV = factor(Contacted_Rep_Party),
     Control_split_DV = factor(control_split),
     Race_DV = factor(Race),
     Dem_Pres_Angry_DV = factor(Dem_Pres_Angry),
-    Dem_Pres_hopeful_DV =factor(Dem_Pres_hopeful),
+    Dem_Pres_hopeful_DV = factor(Dem_Pres_hopeful),
     Rep_Pres_Angry_DV = factor(Rep_Pres_Angry),
     Rep_Pres_hopeful_DV = factor(Rep_Pres_hopeful),
     Dem_Pres_Afraid_DV = factor(Dem_Pres_Afraid),
-    Dem_Pres_Proud_DV = factor (Dem_Pres_Proud),
+    Dem_Pres_Proud_DV = factor(Dem_Pres_Proud),
     Rep_Pres_Afraid_DV = factor(Rep_Pres_Afraid),
     Rep_Pres_Proud_DV = factor(Rep_Pres_Proud),
     Election_Close_DV = factor(Election_Close),
@@ -238,50 +234,77 @@ July_DS_1 <- July_DS_1 %>%
     contacted_by_party_DV = factor(contacted_by_party),
     Volunteer_work_DV = factor(Volunteer_work),
     Income_DV = factor(Income),
-    Anyone_talk_vote_DV =factor(Anyone_talk_vote),
+    Anyone_talk_vote_DV = factor(Anyone_talk_vote),
     Appove_Pres = factor(Approve_President),
-    Voted_Y_N_DV = ifelse (Voted_Y_N > 1, 1, 0),
-    Country_direction_DV = ifelse (Country_direction > 1, 0, 1)
+    Voted_Y_N_DV = ifelse(Voted_Y_N > 1, 1, 0),
+    Country_direction_DV = ifelse(Country_direction > 1, 0, 1)
   )
 ```  
 
 ```{r}
+# I don't see any code that creates this dataset?
+# I assume it's from here:
+Voter_Access_Comp_Rankings <- read_excel("Voter Access-Comp Rankings.xlsx")
+```
+
+
+
+```{r}
 Data_State_rank <- left_join(
-  Final_DS_DV, 
-  Voter_Access_Comp_Rankings, 
+  Final_DS_DV,
+  Voter_Access_Comp_Rankings,
   by = c("YEAR", "State")
 )
 
-names(Data_State_rank)
+# It looks like some new records were created, you should check to make sure
+# this is intentional. Think about what should uniquely identify a row.
+nrow(Final_DS_DV) == nrow(Data_State_rank)
 
+
+# It looks like these two columns should uniquely identify records in the
+# original data. That should still be the case after the join
+janitor::get_dupes(anes_timeseries_cdf_stata13, VCF0004, VCF0006)
+
+get_dupes(Data_State_rank, YEAR, VCF0006)
 ```
+
+
+```{r}
+# This would be easier to work with if you recoded the values to have labels, but this is the basic idea. This tabyl() function is a better version of table(). And it allows you to provide more than just two columns. If you do three it will give you a list of tables - one for each category of the third variable.
+
+Data_State_rank %>% janitor::tabyl(Voted_Y_N, Bw_parties)
+```
+```{r}
+Data_State_rank %>% janitor::tabyl(Voted_Y_N, Bw_parties, Dem_Pres_Afraid)
+```
+
+
 
 # Regression 
 ```{r}
-reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights= Weights, data=Final_DS_DV)
+reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + bw_parties_DV + Volunteer_work_DV + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights = Weights, data = Final_DS_DV)
 
-reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING + Rep_Pres_Afraid_DV + Country_direction_DV, weights= Weights,data=Data_State_rank)
+reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + bw_parties_DV + Volunteer_work_DV + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING + Rep_Pres_Afraid_DV + Country_direction_DV, weights = Weights, data = Data_State_rank)
 
 summary(reg_wsr)
 
 summary(reg_DV)
-
 ``` 
 
-```{r
+```{r}
 # Not working with knit- (seemed to work otherwise)
-Table1 <- table(Voted_Y_N, Race) 
+Table1 <- table(Voted_Y_N, Race)
 
 table(VCF0501)
 
 table(VCF0702, Bw_parties)
 
 Dem_Voters <- table(VCF0702, VCF0314)
-round(prop.table(Dem_Voters,1),2)
+round(prop.table(Dem_Voters, 1), 2)
 
 Diff_parties <- table(VCF0702, VCF0501)
 Diff_parties
-round(prop.table(Diff_parties,1),2)
+round(prop.table(Diff_parties, 1), 2)
 
 Dislike_DEM <- table(VCF0702, VCF9201)
 Dislike_DEM
@@ -289,73 +312,72 @@ Dislike_DEM
 Dislike_REP <- table(VCF0702, VCF9202)
 
 Rep_views <- table(VCF0702, VCF9203)
-round(prop.table(Rep_views,1),2)
+round(prop.table(Rep_views, 1), 2)
 
 which_party <- table(VCF0702, VCF9204)
-round(prop.table(which_party,1),2)
+round(prop.table(which_party, 1), 2)
 
 Party_pref <- table(VCF0702, VCF9206)
-round(prop.table(Party_pref,1),2)
+round(prop.table(Party_pref, 1), 2)
 
 Dem_Smart <- table(VCF0702, VCF0350)
-round(prop.table(Dem_Smart,1),2)
+round(prop.table(Dem_Smart, 1), 2)
 
 Dem_Angry <- table(VCF0702, VCF0358)
-round(prop.table(Dem_Angry,1),2)
+round(prop.table(Dem_Angry, 1), 2)
 
 REP_Angry <- table(VCF0702, VCF0370)
-round(prop.table(REP_Angry,1),2)
+round(prop.table(REP_Angry, 1), 2)
 
 Approve_Pres <- table(VCF0702, VCF0450)
-round(prop.table(Approve_Pres,1),2)
+round(prop.table(Approve_Pres, 1), 2)
 
 Approve_Pres_rating <- table(VCF0702, VCF0451)
-round(prop.table(Approve_Pres_rating,1),2)
+round(prop.table(Approve_Pres_rating, 1), 2)
 
 Pres_Econ <- table(VCF0702, VCF9220)
-round(prop.table(Pres_Econ,1),2)
+round(prop.table(Pres_Econ, 1), 2)
 
 Right_Track <- table(VCF0702, Country_direction)
-round(prop.table(Right_Track,1),2)
+round(prop.table(Right_Track, 1), 2)
 
 LIB_CON <- table(VCF0702, VCF0803)
-round(prop.table(LIB_CON,1),2)
+round(prop.table(LIB_CON, 1), 2)
 
 Trust_Fed_Gov <- table(VCF0702, VCF0604)
-round(prop.table(Trust_Fed_Gov,1),2)
+round(prop.table(Trust_Fed_Gov, 1), 2)
 
 Crooked_FED <- table(VCF0702, VCF0608)
-round(prop.table(Crooked_FED,1),2)
+round(prop.table(Crooked_FED, 1), 2)
 
 TRUST_GOV_GEN <- table(VCF0702, VCF0656)
-round(prop.table(TRUST_GOV_GEN,1),2)
+round(prop.table(TRUST_GOV_GEN, 1), 2)
 
 Volunteer <- table(VCF0702, VCF9256)
-round(prop.table(Volunteer,1),2)
+round(prop.table(Volunteer, 1), 2)
 
 Interst_Elec <- table(VCF0702, VCF0310)
-round(prop.table(Interst_Elec,1),2)
+round(prop.table(Interst_Elec, 1), 2)
 
 Care_win <- table(VCF0702, VCF0311)
-round(prop.table(Care_win,1),2)
+round(prop.table(Care_win, 1), 2)
 
 Care_win_CONG <- table(VCF0702, VCF0312)
-round(prop.table(Care_win_CONG,1),2)
+round(prop.table(Care_win_CONG, 1), 2)
 
 Your_econ <- table(VCF0702, Better_worse)
-round(prop.table(Your_econ,1),2)
+round(prop.table(Your_econ, 1), 2)
 
 Pred_Close <- table(VCF0702, VCF0714)
-round(prop.table(Pred_Close,1),2)
+round(prop.table(Pred_Close, 1), 2)
 
-barplot(Care_win, col=c("Purple","blue"),
-       beside=T,
-       main="What motivates voters?",
-    legend= c("No Difference", "Difference"),  
-       ylab= "Voted?",
-       xlab= "Is there a difference between the two major parties", 
-    las=1)
+barplot(Care_win,
+  col = c("Purple", "blue"),
+  beside = T,
+  main = "What motivates voters?",
+  legend = c("No Difference", "Difference"),
+  ylab = "Voted?",
+  xlab = "Is there a difference between the two major parties",
+  las = 1
+)
 ```
-
-```{r}
-
