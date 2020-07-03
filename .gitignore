@@ -1,0 +1,8 @@
+.Rproj.user
+.Rhistory
+.RData
+.Ruserdata
+data-raw/anes_timeseries_cdf.dta
+data-raw/anes_timeseries_cdf_stata13.dta
+data-raw/anes_timeseries_cdf_codebook.zip 
+.DS_Store
