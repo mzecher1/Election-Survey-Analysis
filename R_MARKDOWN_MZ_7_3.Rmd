@@ -7,7 +7,6 @@ output:
 
 ```{r} setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# Would not knit with this code- need to fix
 ```
 
 # Install packages if first time
@@ -26,7 +25,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("skimr")
 ```
 
-
 # Read in Packages needed
 ```{r message=FALSE}
 library(readr) # read/write dataframes
@@ -43,14 +41,12 @@ library(readxl)
 library(dplyr) # manipulate dataframes
 
 # Helpful package for data cleaning - tables and duplicate records checks
-library(janitor) # install.packages("janitor")
+library(janitor) # install.packages("janitor")\
 ```
-
-# Does not read this- need to fix data import for reproducibilty
 
 # Import the data- ANES Survey Timeseries
 # Unzip the ANES data if needed
-```{r}
+```{r
 source("unzip-anes-data.r")
 ```
 
@@ -101,9 +97,6 @@ June_DS %>%
     VCF0009z,
     VCF0310,
     VCF0358,
-    VCF0360,
-    VCF0370,
-    VCF0372,
     VCF0359,
     VCF0361,
     VCF0371,
@@ -169,6 +162,7 @@ July_DS_1 <- June_DS %>%
     control_split = VCF9206,
     Voted_Y_N = VCF0702,
     Race = VCF0105b,
+    Education = VCF0110,
     Interest_Elec = VCF0310,
     Weights = VCF0009z,
     Dem_Pres_Angry = VCF0358,
@@ -181,10 +175,10 @@ July_DS_1 <- June_DS %>%
     Better_worse = VCF0880,
     FED_Tax = VCF0606,
     Bw_parties = VCF0501,
-    contacted_by_party = VCF9030a,
     Volunteer_work = VCF9256,
     State_CD = VCF0900b,
     Income = VCF0114,
+    contacted_by_party = VCF9030a,
     Contacted_Dem_Party = VCF9030b,
     Contacted_Rep_Party = VCF9030c,
     Country_direction = VCF9222,
@@ -197,6 +191,7 @@ July_DS_1 <- June_DS %>%
     Dem_Pres_Afraid = VCF0359,
     Dem_Pres_Proud = VCF0361,
     Rep_Pres_Afraid = VCF0371,
+    Rep_Pres_hopeful = VCF0372,
     Rep_Pres_Proud = VCF0373,
     Like_dislike_Dem_party = VCF9201
   )
@@ -221,6 +216,7 @@ Final_DS_DV <- July_DS_1 %>%
     Contacted_Rep_Party_DV = factor(Contacted_Rep_Party),
     Control_split_DV = factor(control_split),
     Race_DV = factor(Race),
+    Education_DV = factor(Education),
     Dem_Pres_Angry_DV = factor(Dem_Pres_Angry),
     Dem_Pres_hopeful_DV = factor(Dem_Pres_hopeful),
     Rep_Pres_Angry_DV = factor(Rep_Pres_Angry),
@@ -284,32 +280,36 @@ Data_State_rank %>% janitor::tabyl(Voted_Y_N, Bw_parties, Dem_Pres_Afraid)
 ```{r}
 reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + bw_parties_DV + Volunteer_work_DV + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights = Weights, data = Final_DS_DV)
 
-reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + bw_parties_DV + Volunteer_work_DV + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING + Rep_Pres_Afraid_DV + Country_direction_DV, weights = Weights, data = Data_State_rank)
+reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  + Country_direction_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_by_party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Volunteer_work_DV   + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Afraid_DV + Rep_Pres_Proud_DV  + Interest_elec_DV  + RANKING +PercentDiff, weights= Weights,data=Data_State_rank)
 
 summary(reg_wsr)
 
 summary(reg_DV)
+skim(Data_State_rank)
+summary(Data_State_rank$PercentDiff)
 ``` 
 
 ```{r}
 # Not working with knit- (seemed to work otherwise)
 Table1 <- table(Voted_Y_N, Race)
 
-table(VCF0501)
+Tables <-  %>% 
+    table(
+    (Data_State_rank$Voted_Y_N, Data_State_rank$Bw_parties),
+    (Data_State_rank$Bw_parties,Data_State_rank$Dem_Pres_Afraid)
+)
 
-table(VCF0702, Bw_parties)
+
+
+table(Data_State_rank$Voted_Y_N, Data_State_rank$Bw_parties)
 
 Dem_Voters <- table(VCF0702, VCF0314)
 round(prop.table(Dem_Voters, 1), 2)
 
 Diff_parties <- table(VCF0702, VCF0501)
+
 Diff_parties
 round(prop.table(Diff_parties, 1), 2)
-
-Dislike_DEM <- table(VCF0702, VCF9201)
-Dislike_DEM
-
-Dislike_REP <- table(VCF0702, VCF9202)
 
 Rep_views <- table(VCF0702, VCF9203)
 round(prop.table(Rep_views, 1), 2)
@@ -322,6 +322,10 @@ round(prop.table(Party_pref, 1), 2)
 
 Dem_Smart <- table(VCF0702, VCF0350)
 round(prop.table(Dem_Smart, 1), 2)
+
+Dislike_DEM <- table(VCF0702, VCF9201)
+
+Dislike_REP <- table(VCF0702, VCF9202)
 
 Dem_Angry <- table(VCF0702, VCF0358)
 round(prop.table(Dem_Angry, 1), 2)
@@ -381,3 +385,4 @@ barplot(Care_win,
   las = 1
 )
 ```
+
