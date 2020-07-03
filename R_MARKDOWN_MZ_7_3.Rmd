@@ -5,9 +5,8 @@ output:
   word_document: default
 ---
 
-```r setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# Would not knit with this code- need to fix
 ```
 
 #Install packages if first time
@@ -24,10 +23,6 @@ install.packages('gdata')
 install.packages("skimr")
 ```
 
-```r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 #Read in Packages needed
 ```{r message=FALSE}
 library(dplyr) # manipulate dataframes
@@ -41,19 +36,16 @@ library('ggplot2') # for Plots
 library ('car')
 library ('gdata')
 library('skimr') 
+library('haven') 
 ```
-
-# Does not read this- need to fix data import for reproducibilty
 
 # Import the data- ANES Survey Timeseries
 # Unzip the ANES data if needed
-```{r}
+```{r
 source("unzip-anes-data.r")
 ```
 
 ```{r}
-library(haven)
-
 anes_timeseries_cdf_stata13 <- read_dta("data-raw/anes_timeseries_cdf_stata13.dta")
 ```
 # Filtering for the right years 
@@ -68,7 +60,9 @@ June_DS %>%
   zap_labels() %>% 
   select(
     VCF0102,
-    VCF0104, 
+    VCF0110,
+    VCF0104,
+    VCF0112,
     VCF0880, 
     VCF0606, 
     VCF0501,
@@ -96,9 +90,6 @@ June_DS %>%
     VCF0009z,
     VCF0310,
     VCF0358,
-    VCF0360,
-    VCF0370,
-    VCF0372,
     VCF0359,
      VCF0361,
       VCF0371,
@@ -114,39 +105,37 @@ June_DS %>%
 
 July_DS_1 = subset(June_DS, select = c(VCF0102,
     VCF0104,
-    VCF0004,
-    VCF0702,
-    VCF0880, 
-    VCF0606, 
-    VCF0501,
-    VCF9030a,
-    VCF9206, 
+    VCF0114, 
     VCF0105b, 
-    VCF0450, 
-    VCF0301,  
-    VCF9202,
+    VCF0004,
     VCF0358, 
     VCF0360, 
     VCF0370,
     VCF0310,
-    VCF0372, 
-    VCF0714, 
+    VCF0372,
+    VCF0359,
+    VCF0361,
+    VCF0371,
+    VCF0373,
+    VCF0450, 
+    VCF0301, 
+    VCF0606,
+    VCF0110,
+    VCF0702,
+    VCF0714,
+    VCF0880, 
+    VCF0900b,
+    VCF0112,
+    VCF0501,
+    VCF9030a,
+    VCF9206, 
+    VCF9202,
     VCF9256, 
-    VCF0900b, 
-    VCF0114, 
     VCF9030b,
     VCF9030c,	  
     VCF9222,
-    VCF0359,
-    VCF0361,
-    VCF0371,
-    VCF0373,
-    VCF0359,
-    VCF0361,
-    VCF0371,
-    VCF0373,
-    VCF9021,'
     VCF9201,
+    VCF9021,
     VCF0901a,
     VCF0009z))
 ```
@@ -156,8 +145,9 @@ July_DS_1 = subset(June_DS, select = c(VCF0102,
 
 July_DS_1 <- July_DS_1 %>%
    mutate(
-   VCF0501 = replace_na(VCF0501, 9),
+    VCF0501 = replace_na(VCF0501, 9),
     VCF9256 = replace_na(VCF9256, 3),
+    VCF9030a =  replace_na(VCF9030a, 3),
     VCF9030b =  replace_na(VCF9030b, 3),
     VCF9030c =  replace_na(VCF9030c, 3),
     VCF0114 = replace_na(VCF0114, 6),
@@ -167,31 +157,26 @@ July_DS_1 <- July_DS_1 %>%
 
 ```
   
-summary("Gender")
-
 ```{r}
  
-July_DS_1 <- July_DS_1 %>% 
+July_DS_3 <- July_DS_1 %>% 
     rename(
     control_split = VCF9206,
     Voted_Y_N = VCF0702,
     Race = VCF0105b,
+    Education = VCF0110,
     Interest_Elec = VCF0310,
     Weights = VCF0009z,
-    Dem_Pres_Angry = VCF0358,
-    Dem_Pres_hopeful= VCF0360,
-    Rep_Pres_Angry = VCF0370,
-    Rep_Pres_hopeful = VCF0372,
     Election_Close = VCF0714,
     Age = VCF0102,
     Gender = VCF0104,
     Better_worse = VCF0880,
     FED_Tax = VCF0606,
     Bw_parties = VCF0501,
-    contacted_by_party = VCF9030a,
     Volunteer_work = VCF9256,
     State_CD = VCF0900b,
     Income = VCF0114,
+    contacted_by_party = VCF9030a,
     Contacted_Dem_Party = VCF9030b,
     Contacted_Rep_Party =VCF9030c,	 	 	 		
 		Country_direction = VCF9222,
@@ -201,9 +186,13 @@ July_DS_1 <- July_DS_1 %>%
 		Anyone_talk_vote = VCF9021,
 		Like_dislike_Rep_party = VCF9202,
 		YEAR = VCF0004, 
+		Dem_Pres_Angry = VCF0358,
 		Dem_Pres_Afraid = VCF0359,
-    Dem_Pres_Proud VCF0361,
+		Dem_Pres_hopeful = VCF0360,
+    Dem_Pres_Proud = VCF0361,
+    Rep_Pres_Angry = VCF0370,
     Rep_Pres_Afraid = VCF0371,
+    Rep_Pres_hopeful = VCF0372,
     Rep_Pres_Proud = VCF0373,
 		Like_dislike_Dem_party = VCF9201
 )
@@ -214,7 +203,7 @@ July_DS_1 <- July_DS_1 %>%
 # Creating Dummy Variables
 ```{r}
    
-    Final_DS_DV <- July_DS_1 %>% 
+    Final_DS_DV <- July_DS_3 %>% 
     mutate(
     Age_Dummy = factor(Age),
     Interest_elec_DV = factor(Interest_Elec),
@@ -225,6 +214,7 @@ July_DS_1 <- July_DS_1 %>%
     Contacted_Rep_Party_DV= factor(Contacted_Rep_Party),
     Control_split_DV = factor(control_split),
     Race_DV = factor(Race),
+    Education_DV = factor(Education),
     Dem_Pres_Angry_DV = factor(Dem_Pres_Angry),
     Dem_Pres_hopeful_DV =factor(Dem_Pres_hopeful),
     Rep_Pres_Angry_DV = factor(Rep_Pres_Angry),
@@ -238,6 +228,7 @@ July_DS_1 <- July_DS_1 %>%
     contacted_by_party_DV = factor(contacted_by_party),
     Volunteer_work_DV = factor(Volunteer_work),
     Income_DV = factor(Income),
+    Party_aff_DV = factor (Party),
     Anyone_talk_vote_DV =factor(Anyone_talk_vote),
     Appove_Pres = factor(Approve_President),
     Voted_Y_N_DV = ifelse (Voted_Y_N > 1, 1, 0),
@@ -260,11 +251,13 @@ names(Data_State_rank)
 ```{r}
 reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights= Weights, data=Final_DS_DV)
 
-reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING + Rep_Pres_Afraid_DV + Country_direction_DV, weights= Weights,data=Data_State_rank)
+reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  + Country_direction_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_by_party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Volunteer_work_DV   + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Afraid_DV + Rep_Pres_Proud_DV  + Interest_elec_DV  + RANKING +PercentDiff, weights= Weights,data=Data_State_rank)
 
 summary(reg_wsr)
 
 summary(reg_DV)
+skim(Data_State_rank)
+summary(Data_State_rank$PercentDiff)
 
 ``` 
 
@@ -272,21 +265,21 @@ summary(reg_DV)
 # Not working with knit- (seemed to work otherwise)
 Table1 <- table(Voted_Y_N, Race) 
 
-table(VCF0501)
+Tables <-  %>% 
+    table(
+    (Data_State_rank$Voted_Y_N, Data_State_rank$Bw_parties),
+    (Data_State_rank$Bw_parties,Data_State_rank$Dem_Pres_Afraid)
+)
 
-table(VCF0702, Bw_parties)
+
+
+table(Data_State_rank$Voted_Y_N, Data_State_rank$Bw_parties)
 
 Dem_Voters <- table(VCF0702, VCF0314)
 round(prop.table(Dem_Voters,1),2)
 
 Diff_parties <- table(VCF0702, VCF0501)
-Diff_parties
 round(prop.table(Diff_parties,1),2)
-
-Dislike_DEM <- table(VCF0702, VCF9201)
-Dislike_DEM
-
-Dislike_REP <- table(VCF0702, VCF9202)
 
 Rep_views <- table(VCF0702, VCF9203)
 round(prop.table(Rep_views,1),2)
@@ -299,6 +292,10 @@ round(prop.table(Party_pref,1),2)
 
 Dem_Smart <- table(VCF0702, VCF0350)
 round(prop.table(Dem_Smart,1),2)
+
+Dislike_DEM <- table(VCF0702, VCF9201)
+
+Dislike_REP <- table(VCF0702, VCF9202)
 
 Dem_Angry <- table(VCF0702, VCF0358)
 round(prop.table(Dem_Angry,1),2)
@@ -348,6 +345,11 @@ round(prop.table(Your_econ,1),2)
 Pred_Close <- table(VCF0702, VCF0714)
 round(prop.table(Pred_Close,1),2)
 
+
+```
+# DATA VIZ 
+```{r}
+
 barplot(Care_win, col=c("Purple","blue"),
        beside=T,
        main="What motivates voters?",
@@ -355,7 +357,4 @@ barplot(Care_win, col=c("Purple","blue"),
        ylab= "Voted?",
        xlab= "Is there a difference between the two major parties", 
     las=1)
-```
-
-```{r}
 
