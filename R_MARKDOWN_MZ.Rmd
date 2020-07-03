@@ -41,12 +41,11 @@ library('ggplot2') # for Plots
 library ('car')
 library ('gdata')
 library('skimr') 
+library('haven')
+
 ```
 
-# Does not read this- need to fix data import for reproducibilty
-
-# Import the data- ANES Survey Timeseries
-# Unzip the ANES data if needed
+# Import the data- ANES Survey Timeseries and unzip the ANES file 
 ```{r}
 source("unzip-anes-data.r")
 ```
@@ -96,6 +95,10 @@ June_DS %>%
     VCF0009z,
     VCF0310,
     VCF0358,
+    VCF0371,
+    VCF0373,
+    VCF0359,
+    VCF0361,
     VCF0360,
     VCF0370,
     VCF0372,
@@ -261,7 +264,9 @@ names(Data_State_rank)
 reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights= Weights, data=Final_DS_DV)
 
 reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING + Rep_Pres_Afraid_DV + Country_direction_DV, weights= Weights,data=Data_State_rank)
+reg_wsr
 
+reg_DV
 summary(reg_wsr)
 
 summary(reg_DV)
