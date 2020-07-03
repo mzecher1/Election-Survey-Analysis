@@ -235,11 +235,6 @@ names(Data_State_rank)
 
 ```
 
-With_State_rank_fil = subset(With_State_rank, select = c(YEAR, State, RANKING, Percent Diff))
-names(With_State_rank)
-
-summary(Voter_Access_Comp_Rankings$Ranking)
-
 # Regression 
 ```{r}
 reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights= Weights, data=Final_DS_DV)
@@ -248,12 +243,7 @@ reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + C
 
 summary(reg_wsr)
 
-reg_Age <- lm(Voted_Y_N_DV ~ Age_Dummy, data=Final_DS_DV)
-summary(reg_Age)
-              
 summary(reg_DV)
-
-plot(reg_DV)
 
 ``` 
 
@@ -347,7 +337,4 @@ barplot(Care_win, col=c("Purple","blue"),
 ```
 
 ```{r}
-myfile <- "https://github.com/wagner-mspp-2020/mz2733/blob/master/Voter%20Access-Comp%20Rankings.xlsx"
-
-Voter_rank = read.csv (myfile) 
 
