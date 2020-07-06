@@ -5,6 +5,8 @@ output:
   word_document: default
 ---
 
+#Liam Corrections or suggestions will have three "###"
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # Would not knit with this code- need to fix
@@ -24,9 +26,7 @@ install.packages('gdata')
 install.packages("skimr")
 ```
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+###code repeated from first line so i deleted it
 
 #Read in Packages needed
 ```{r message=FALSE}
@@ -58,6 +58,7 @@ anes_timeseries_cdf_stata13 <- read_dta("data-raw/anes_timeseries_cdf_stata13.dt
 # Filtering for the right years 
 ```{r}
 June_DS <-anes_timeseries_cdf_stata13[!(anes_timeseries_cdf_stata13$VCF0004<"2004"),]
+###why called June Data Set? If it is data from 2004 election until after?
 ```
 
 ```{r}
@@ -140,21 +141,22 @@ July_DS_1 = subset(June_DS, select = c(VCF0102,
 
 # Dealing w/ missings # For many of the categories I added a "Dummy" category to signal the question was unanswered. If the regression shows these dummies are not significant, can assume that these missings were not strongly biased in a direction. 
 ```{r}
-
-July_DS_1 <- July_DS_1 %>%
-   mutate(
+   mutate(July_DS_1,
    VCF0501 = replace_na(VCF0501, 9),
     VCF9256 = replace_na(VCF9256, 3),
     VCF9030b =  replace_na(VCF9030b, 3),
     VCF9030c =  replace_na(VCF9030c, 3),
     VCF0114 = replace_na(VCF0114, 6),
     VCF0310 = replace_na(VCF0310, 9),
-    VCF9021 =  replace_na(VCF9021, 3))
+    VCF9021 =  replace_na(VCF9021, 3)) -> July_DS_1
         
-
+### you can do what you originally did but you don't need to put the data frame in twice
 ```
-  
+
+```{r}  
 summary("Gender")
+### not sure if meant to include but put r code here
+```
 
 ```{r}
  
@@ -225,6 +227,13 @@ July_DS_1 <- July_DS_1 %>%
 ```  
 
 ```{r}
+###added code for voter access comp
+library(readxl)
+Voter_Access_Comp_Rankings <- read_excel("GitHub/mz2733/Voter Access-Comp Rankings.xlsx")
+View(Voter_Access_Comp_Rankings)
+```
+
+```{r}
 Data_State_rank <- left_join(
   Final_DS_DV, 
   Voter_Access_Comp_Rankings, 
@@ -232,14 +241,15 @@ Data_State_rank <- left_join(
 )
 
 names(Data_State_rank)
-
+###Voter_ACcess_Comp_Rankings needs to be imported for reproducibility
 ```
 
 ```{r}
-With_State_rank_fil = subset(With_State_rank, select = c(YEAR, State, RANKING, `Percent Diff`))
+With_State_rank_fil <- subset(Data_State_rank, select = c(YEAR, State, RANKING, `Percent Diff`))
 names(With_State_rank)
 
 summary(Voter_Access_Comp_Rankings$Ranking)
+###having trouble understanding this block of code. What are you looking for here?
 ```
 
 # Regression 
@@ -248,12 +258,14 @@ reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Co
 
 reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV +Contacted_Dem_Party_DV+ Contacted_Rep_Party_DV+ Better_worse_DV + bw_parties_DV + Volunteer_work_DV  + Income_DV + Dem_Pres_Angry_DV + PercentDiff + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + RANKING +  Country_direction_DV, weights= Weights,data=Data_State_rank)
 
+
 summary(reg_wsr)
 
 reg_Age <- lm(Voted_Y_N_DV ~ Age_Dummy, data=Final_DS_DV)
 summary(reg_Age)
               
 summary(reg_DV)
+
 
 plot(reg_DV)
 
