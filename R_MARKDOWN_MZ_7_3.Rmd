@@ -23,7 +23,12 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages("ggpubr")
 # install.packages('car')
 # install.packages('gdata')
-# install.packages("skimr")
+# install.packages('skimr')
+# install.packages('scales')
+# install.packages('janitor')
+# install.packages('gtsummary')
+# install.packages('srvyr')
+
 ```
 
 # Read in Packages needed
@@ -38,11 +43,15 @@ library("ggplot2") # for Plots
 library("car")
 library("gdata")
 library("skimr")
-library(readxl)
+library("readxl")
 library(dplyr) # manipulate dataframes
+library(janitor) 
+library(broom)
+library(gtsummary)
+library(srvyr)
 
-# Helpful package for data cleaning - tables and duplicate records checks
-library(janitor) # install.packages("janitor")
+
+
 ```
 
 # Does not read this- need to fix data import for reproducibilty
@@ -127,6 +136,7 @@ July_DS_1 <- June_DS %>%
     VCF0104,
     VCF0105b,
     VCF0114,
+    VCF0110,
     VCF0301,
     VCF0310,
     VCF0358,
@@ -158,6 +168,7 @@ July_DS_1 <- June_DS %>%
   dplyr::mutate(
     VCF0501 = replace_na(VCF0501, 9),
     VCF9256 = replace_na(VCF9256, 3),
+    VCF9030a =  replace_na(VCF9030a, 3),
     VCF9030b = replace_na(VCF9030b, 3),
     VCF9030c = replace_na(VCF9030c, 3),
     VCF0114 = replace_na(VCF0114, 6),
@@ -190,6 +201,7 @@ July_DS_1 <- June_DS %>%
     State = VCF0901a,
     Approve_President = VCF0450,
     Party = VCF0301,
+    Education = VCF0110,
     Anyone_talk_vote = VCF9021,
     Like_dislike_Rep_party = VCF9202,
     YEAR = VCF0004,
@@ -199,10 +211,6 @@ July_DS_1 <- June_DS %>%
     Rep_Pres_Proud = VCF0373,
     Like_dislike_Dem_party = VCF9201
   )
-```
-
-```{r}
-summary("Gender")
 ```
 
 
@@ -233,16 +241,17 @@ Final_DS_DV <- July_DS_1 %>%
     contacted_by_party_DV = factor(contacted_by_party),
     Volunteer_work_DV = factor(Volunteer_work),
     Income_DV = factor(Income),
+    Party_aff_DV = factor (Party),
+    Education_DV = factor(Education),
     Anyone_talk_vote_DV = factor(Anyone_talk_vote),
     Appove_Pres = factor(Approve_President),
     Voted_Y_N_DV = ifelse(Voted_Y_N > 1, 1, 0),
     Country_direction_DV = ifelse(Country_direction > 1, 0, 1)
   )
+
 ```  
 
 ```{r}
-# I don't see any code that creates this dataset?
-# I assume it's from here:
 Voter_Access_Comp_Rankings <- read_excel("Voter Access-Comp Rankings.xlsx")
 ```
 
@@ -271,8 +280,11 @@ get_dupes(Data_State_rank, YEAR, VCF0006)
 ```{r}
 # This would be easier to work with if you recoded the values to have labels, but this is the basic idea. This tabyl() function is a better version of table(). And it allows you to provide more than just two columns. If you do three it will give you a list of tables - one for each category of the third variable.
 
-Data_State_rank %>% janitor::tabyl(Voted_Y_N, Bw_parties)
-```
+TABLE_T_1 <- Data_State_rank %>% janitor::tabyl(Voted_Y_N, Bw_parties)
+
+
+TABLE_T_2 <-tabyl(Data_State_rank$Voted_Y_N, Data_State_rank$Bw_parties)
+
 ```{r}
 Data_State_rank %>% janitor::tabyl(Voted_Y_N, Bw_parties, Dem_Pres_Afraid)
 ```
@@ -281,17 +293,78 @@ Data_State_rank %>% janitor::tabyl(Voted_Y_N, Bw_parties, Dem_Pres_Afraid)
 
 # Regression 
 ```{r}
-reg_DV <- lm(Voted_Y_N_DV ~ Age_Dummy + Gender_DV + Race_DV + bw_parties_DV + Contacted_by_party_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + bw_parties_DV + Volunteer_work_DV + Income_DV + Dem_Pres_Angry_DV + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Interest_elec_DV + Country_direction_DV, weights = Weights, data = Final_DS_DV)
 
-reg_wsr <- lm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  + Country_direction_DV + Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV + Contacted_Dem_Party_DV + Contacted_by_party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Volunteer_work_DV   + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Afraid_DV + Rep_Pres_Proud_DV  + Interest_elec_DV  + RANKING +PercentDiff, weights= Weights,data=Data_State_rank)
+reg_wsr <- glm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  +  Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV  + Contacted_by_party_DV + + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Country_direction_DV    + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV  +  Rep_Pres_Proud_DV+ Rep_Pres_Afraid_DV   + Interest_elec_DV  + Volunteer_work_DV +Party_aff_DV + RANKING + PercentDiff, weights= Weights, family= binomial, data=Data_State_rank)
 
 summary(reg_wsr)
 
-summary(reg_DV)
+tbl_regression(
+  reg_wsr, 
+  exponentiate = TRUE),
+  
+
+exp(coef(reg_wsr))
+coef1 <-coef(reg_wsr)
+
+logit2prob(coef(reg_wsr)) <- function(coef1){
+  odds <- exp(coef1)
+  prob <- odds / (1 + odds)
+  return(prob)
+}
+
 skim(Data_State_rank)
 summary(Data_State_rank$PercentDiff)
 ``` 
 
+#Barplot
+```{r}
+colors <- c("Dark Blue", "Yellow", "Red")
+
+barplot(table(Data_State_rank$Voted_Y_N, Data_State_rank$Bw_parties), main = "Do You Believe There is A Difference Between Dems and Rep?", beside=TRUE, las=1, col = colors, legend=c("Did not vote","Voted"), name=c("No Difference", "Difference", "Don't Know"), ylab= "Did you vote?", xlab= "Is there a difference between major parties?",  weight=Data_State_rank$Weights)
+
+text(1.5, 1100, "849")
+text(2.5, 1500, "1283")
+text(4.5, 1900, "1664")
+text(5.5, 8100, "8312")
+
+barplot(table(Data_State_rank$Voted_Y_N,Data_State_rank$Party_aff,Data_State_rank$Bw_parties), main = "Party Affiliation", beside=TRUE, las=1, col = colors, legend=c("Did not vote","Voted"), name=c("1","2", "3", "4", "5", "6", "7"), ylab= "Did you vote?", xlab= "Is there a difference between major parties?",  weight=Data_State_rank$Weights)
+
+text(1.5, 1100, "849")
+text(2.5, 1500, "1283")
+text(4.5, 1900, "1664")
+text(5.5, 8100, "8312")
+
+table(Data_State_rank$Voted_Y_N,Data_State_rank$Party,Data_State_rank$Bw_parties)
+table(Data_State_rank$Voted_Y_N, Data_State_rank$Bw_parties)
+
+        
+B <- table(Data_State_rank$Voted_Y_N, Data_State_rank$Bw_parties)
+
+C <- A + B
+
+Data_State_rank  %>%  ggplot(aes(x=Voted_Y_N, fill=Bw_parties)) + geom_bar(color="black", position= "dodge") 
+
+scatterplot(Data_State_rank$Voted_Y_N, Data_State_rank$PercentDiff)
+```
+plot(Data_State_rank$Voted_Y_N_DV)
+abline(Data_State_rank$Voted_Y_N_DV ~ Data_State_rank$Age_dummy,  col="blue", lwd=3)
+
+qplot <- qplot(0,1, xlab="IND DUMMY",ylab="Voting")
+
+plotxscale <- scale_x_continuous(limits=c(0,1))
+plotyscale <- scale_y_continuous(limits=c(0,1))
+Line1 <- geom_abline(slope=(.5), intercept = (.5), colour= "red", label ="Dummy1", colour= "red")
+
+Line2 <- geom_abline(slope=(.5), intercept = (.3), colour= "red")
+
+arrow <- (arrows(0, .25, 0, .5, length = 0.25, angle = 30,
+       code = 2))
+
+Dum_line <-  qplot + Line1 + Line2 + plotxscale + plotyscale
+print(Dum_line)
+
+ 
+ 
 ```{r}
 # Not working with knit- (seemed to work otherwise)
 Table1 <- table(Voted_Y_N, Race)
@@ -375,13 +448,7 @@ round(prop.table(Your_econ, 1), 2)
 Pred_Close <- table(VCF0702, VCF0714)
 round(prop.table(Pred_Close, 1), 2)
 
-barplot(Care_win,
-  col = c("Purple", "blue"),
-  beside = T,
-  main = "What motivates voters?",
-  legend = c("No Difference", "Difference"),
-  ylab = "Voted?",
-  xlab = "Is there a difference between the two major parties",
-  las = 1
-)
 ```
+Data_svy <- as_survey_design(Data_State_rank, weights = Weights)
+augment(reg_wsr, data = Data_State_rank) %>% 
+  select(Contacted_Dem_Party_DV, Rep_Pres_Proud_DV)
