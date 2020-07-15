@@ -21,4 +21,7 @@ if (!file_exists(path("data-raw", "anes_timeseries_cdf_stata13.dta"))) {
   )
 }
 
-file_delete(path("data-raw", "anes_timeseries_cdf_codebook.zip"))
+codebook_zip_file <- path("data-raw", "anes_timeseries_cdf_codebook.zip")
+if (file_exists(codebook_zip_file)) {
+  file_delete(codebook_zip_file)
+}

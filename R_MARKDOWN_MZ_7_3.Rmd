@@ -6,7 +6,7 @@ output:
 ---
 
 # Setting up the document 
-```{r, setup, include=FALSE}
+```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
@@ -59,7 +59,7 @@ library(ggstance)
 # Import the data- ANES Survey Timeseries
 # Unzip the ANES data if needed
 ```{r}
-source("unzip-anes-data.R")
+source("unzip-anes-data.r")
 ```
 
 ```{r}
@@ -96,6 +96,7 @@ Data_2004 %>%
     VCF0301,
     VCF9206,
     VCF9202,
+    VCF9257,
     VCF0358,
     VCF0360,
     VCF0370,
@@ -167,10 +168,12 @@ Filtered_DS <- Data_2004 %>%
     VCF9202,
     VCF9206,
     VCF9222,
+    VCF9257,
     VCF9256
 ) %>%
   dplyr::mutate(
     VCF0501 = replace_na(VCF0501, 9),
+    VCF9257 = replace_na(VCF9257, 3),
     VCF9256 = replace_na(VCF9256, 3),
     VCF9030a =  replace_na(VCF9030a, 3),
     VCF9030b = replace_na(VCF9030b, 3),
@@ -185,6 +188,7 @@ Filtered_DS <- Data_2004 %>%
     Race = VCF0105b,
     Interest_Elec = VCF0310,
     Weights = VCF0009z,
+    Community_work =VCF9257,
     Dem_Pres_Angry = VCF0358,
     Dem_Pres_hopeful = VCF0360,
     Rep_Pres_Angry = VCF0370,
@@ -247,6 +251,7 @@ Final_DS_DV <- Filtered_DS %>%
     Income_DV = factor(Income),
     Party_aff_DV = factor (Party),
     Education_DV = factor(Education),
+    Community_work_DV = factor(Community_work),
     Anyone_talk_vote_DV = factor(Anyone_talk_vote),
     Appove_Pres = factor(Approve_President),
     Voted_Y_N_DV = ifelse(Voted_Y_N > 1, 1, 0),
@@ -300,10 +305,17 @@ Data_Final_REG %>% janitor::tabyl(Voted_Y_N, Bw_parties, Dem_Pres_Afraid)
 # Logit Regression for the main analysis  
 ```{r}
 
-reg_wsr <- glm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  +  Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV  + Contacted_by_party_DV + + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Country_direction_DV    + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV  +  Rep_Pres_Proud_DV+ Rep_Pres_Afraid_DV   + Interest_elec_DV  + Volunteer_work_DV +Party_aff_DV + RANKING + PercentDiff, weights= Weights, family= binomial, data=Data_Final_REG)
+reg_wsr <- glm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  +  Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV  + Contacted_by_party_DV +  Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Country_direction_DV    + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Angry_DV  + Rep_Pres_hopeful_DV  +  Rep_Pres_Proud_DV+ Rep_Pres_Afraid_DV   + Interest_elec_DV  + Volunteer_work_DV +Party_aff_DV + RANKING + PercentDiff, weights= Weights, family= binomial, data=Data_Final_REG)
 
 summary(reg_wsr)
 ```
+```{r}
+
+reg_wsr_LM <- lm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  +  Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV  + Contacted_by_party_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Country_direction_DV + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV  +  Rep_Pres_Proud_DV+ Rep_Pres_Afraid_DV + Interest_elec_DV  + Volunteer_work_DV +Party_aff_DV + RANKING + PercentDiff, weights= Weights, data=Data_Final_REG)
+
+summary(reg_wsr_LM)
+```
+
 # Building visualizations 
 
 ```{r}
