@@ -31,6 +31,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages('srvyr')
 # install.packages('broom')
 # install.packages('ggstance')
+# install.packages("margins")
 # install.packages('haven')
 ```
 
@@ -53,6 +54,8 @@ library(broom)
 library(gtsummary)
 library(srvyr)
 library(ggstance)
+library('margins')
+
 ```
 
 
@@ -221,7 +224,6 @@ Filtered_DS <- Data_2004 %>%
   )
 ```
 
-
 # Creating Dummy Variables
 ```{r}
 
@@ -266,8 +268,6 @@ Final_DS_DV <- Filtered_DS %>%
 Voter_Access_Comp_Rankings <- read_excel("Voter Access-Comp Rankings.xlsx")
 ```
 
-
-
 ```{r}
 Data_Final_REG <- left_join(
   Final_DS_DV,
@@ -278,49 +278,114 @@ Data_Final_REG <- left_join(
 # Checking that merge occured properly- did not add any new observations 
 nrow(Final_DS_DV) == nrow(Data_Final_REG)
 
-
 # Checking for duplications (VCF0006 is the Study Respondent Number)
 janitor::get_dupes(anes_timeseries_cdf_stata13, VCF0004, VCF0006)
 
 get_dupes(Data_Final_REG, YEAR, VCF0006)
 ```
 
-
+# Logit Regressions  
 ```{r}
-#  Building cross tabs to examine the data 
 
-And it allows you to provide more than just two columns. If you do three it will give you a list of tables - one for each category of the third variable.
-
-TABLE_T_1 <- Data_Final_REG %>% janitor::tabyl(Voted_Y_N, Bw_parties)
-
-
-TABLE_T_2 <-tabyl(Data_Final_REG$Voted_Y_N, Data_Final_REG$Bw_parties)
-
-```{r}
-Data_Final_REG %>% janitor::tabyl(Voted_Y_N, Bw_parties, Dem_Pres_Afraid)
-```
-
-
-
-# Logit Regression for the main analysis  
-```{r}
+# Basic Logit Regression 
 
 reg_wsr <- glm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  +  Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV  + Contacted_by_party_DV +  Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Country_direction_DV    + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Angry_DV  + Rep_Pres_hopeful_DV  +  Rep_Pres_Proud_DV+ Rep_Pres_Afraid_DV   + Interest_elec_DV  + Volunteer_work_DV +Party_aff_DV + RANKING + PercentDiff, weights= Weights, family= binomial, data=Data_Final_REG)
 
 summary(reg_wsr)
+
+# Used the margin commons to account for that the logit regression gives an output off one baseline, and this helps normalize the logit regression to reflect how the variables can shift and impact one and other
+
+margin_reg <- margins(reg_wsr)
+
+summary (margin_reg)
 ```
+
+# Linear Regression Model 
 ```{r}
 
 reg_wsr_LM <- lm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + Income_DV+ Education_DV + bw_parties_DV + Party_aff_DV  +  Control_split_DV + Election_Close_DV + Anyone_talk_vote_DV  + Contacted_by_party_DV + Contacted_Dem_Party_DV + Contacted_Rep_Party_DV + Better_worse_DV + Country_direction_DV + Dem_Pres_Angry_DV  + Dem_Pres_hopeful_DV + Dem_Pres_Proud_DV + Dem_Pres_Afraid_DV + Rep_Pres_Angry_DV + Rep_Pres_hopeful_DV  +  Rep_Pres_Proud_DV+ Rep_Pres_Afraid_DV + Interest_elec_DV  + Volunteer_work_DV +Party_aff_DV + RANKING + PercentDiff, weights= Weights, data=Data_Final_REG)
 
 summary(reg_wsr_LM)
+
+# We ran the linear and logit regression models to compare the two. The Logit Regression based on statistical technicalities fits a binary dependent variable better, yet when one uses the margin command to normalize the results of the logit regression, the two produce extremely similar results. 
+```
+
+```{r}
+# Turn OLS Regression into a DF to calculate the percentage changes from the baseline 
+Regression <- tidy(reg_wsr)
+
+OLS_DF <- tidy(reg_wsr_LM)
+
+# Calculate the level of the vairable's impact by summing the coefficient with the OLS intercept
+OLS_DF <- mutate(OLS_DF, Level_of_coef=(0.4197571788+estimate))
+
+# Calculate the percent change between the impact of the variable and the baseline
+
+OLS_DF <- mutate(OLS_DF, Percent_Change=((Level_of_coef-0.4197571788)/0.4197571788))
+
+# Adding a Column to denote category so it is easier to filter and create visualizations 
+
+OLS_DF <- OLS_DF  %>% mutate(Variable2 = c("Intercept","Age_Dummy","Age_Dummy","Age_Dummy","Age_Dummy","Age_Dummy","Age_Dummy","Gender_DV","Gender_DV","Race_DV","Race_DV","Race_DV","Income_DV","Income_DV","Income_DV","Income_DV","Income_DV","Education_DV","Education_DV","Education_DV","bw_parties_DV","bw_parties_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Control_split_DV","Control_split_DV","Election_Close_DV","Election_Close_DV","Anyone_talk_vote_DV","Anyone_talk_vote_DV","Contacted_by_party_DV","Contacted_by_party_DV","Contacted_by_party_DV","Contacted_by_party_DV","Contacted_by_party_DV","Better_worse_DV","Better_worse_DV","Country_direction_DV","PRES_FEELING1","PRES_FEELING1","PRES_FEELING2","PRES_FEELING2","PRES_FEELING1","PRES_FEELING1","PRES_FEELING2","PRES_FEELING2","Interest_elec_DV","Interest_elec_DV","Interest_elec_DV","Volunteer_work_DV","Volunteer_work_DV","RANKING","PercentDiff"))
+
 ```
 
 # Building visualizations 
+# Graphs of percentage changes
+```{r}
+
+# Percent Change in Age Graph
+
+Percent_AGE <- OLS_DF %>% filter(Variable2 =="Age_Dummy")
+Percent_AGE <- mutate(Percent_AGE, Variable = c("25-34","35-44","45-54","55-64","65-74","75+"))
+
+Age_Per_Plot <- ggplot(Percent_AGE) + 
+  aes(x =Variable, y = Percent_Change) + 
+  labs(title = "                        As age increaes so does the likelihood of voting",
+              caption = "Source: ANES",
+              x = "Age", y = "Percent Change compared to 17-24 Year Old Group") +
+  geom_col(fill="#FF9999", colour="blue")  + coord_flip()
+Age_Per_Plot
+
+```
 
 ```{r}
+# Percent change in Education - Graph 
+Percent_EDU <- OLS_DF %>% filter(Variable2 =="Education_DV")
+Percent_EDU <- mutate(Percent_EDU, Variable = c("High School","College Started (Not Finished) ","College Degree"))
+
+EDU_Per_Plot <- ggplot(Percent_EDU) + 
+  aes(x =Variable, y = Percent_Change) + 
+  labs(title = "As Education increaes so does the likelihood of voting",
+              caption = "Source: ANES",
+              x = "Education", y = "Percent Change compared to Non High School Graduates") +
+  geom_col(fill="#FF9999", colour="blue", order="ascending")  + coord_flip()
+EDU_Per_Plot
+```
+
+```{r}
+# Percent change based on emotional response - Graph 
+Percent_FEELING <- OLS_DF %>% filter(Variable2 =="PRES_FEELING2")
+Percent_FEELING <- mutate(Percent_FEELING, Variable = c("Dem Evokes Pride", "Dem Evokes Fear","Rep Evokes Pride", "Rep Evokes Fear"))
+
+Percent_FEELING <- mutate(Percent_FEELING, Percent_Change2=(0.4197571788+Percent_Change))
+Percent_FEELING <- mutate(Percent_FEELING, Percent_Change3= (0.4197571788-Percent_Change2)/(Percent_Change2))
+
+
+Feeling_Per_Plot <- ggplot(Percent_FEELING) + 
+  aes(x =Variable, y = Percent_Change3) + 
+  labs(title = "What Emotions Motivate Potential Voters",
+              caption = "Source: ANES",
+              x = "Emotions Elicited?", y = "Percent Change") +
+  geom_col(fill="#FF9999", colour="blue") + coord_flip()  
+Feeling_Per_Plot
+
+```
+
+# Odds Ratio Charts based off the Logit Regressions
+```{r}
+
   
-# Tibble method to make ODDS RATIO CHARTS 
+# Tibble method to make ODDS RATIO CHARTS based off the LOGIT Regressions
 Reg_OR_Table <-  tbl_regression(
   reg_wsr,
   exponentiate = TRUE)
@@ -337,7 +402,6 @@ plot_data_3<- Reg_OR_Table %>%
 plot_data_new_cat <- plot_data_3  %>% mutate(Variable2 = c("Age_Dummy",
 "Age_Dummy", "Age_Dummy","Age_Dummy","Age_Dummy","Age_Dummy","Age_Dummy","Age_Dummy","Gender_DV","Gender_DV","Gender_DV","Gender_DV","Race_DV","Race_DV","Race_DV","Race_DV","Race_DV","Income_DV","Income_DV","Income_DV","Income_DV","Income_DV","Income_DV","Income_DV","Education_DV","Education_DV","Education_DV","Education_DV","Education_DV","bw_parties_DV","bw_parties_DV","bw_parties_DV","bw_parties_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Party_aff_DV","Control_split_DV","Control_split_DV","Control_split_DV","Control_split_DV","Election_Close_DV","Election_Close_DV","Election_Close_DV","Election_Close_DV","Anyone_talk_vote_DV","Anyone_talk_vote_DV","Anyone_talk_vote_DV","Anyone_talk_vote_DV","Contacted_by_party_DV","Contacted_by_party_DV","Contacted_by_party_DV","Contacted_by_party_DV","Contacted_Dem_Party_DV","Contacted_Dem_Party_DV","Contacted_Dem_Party_DV","Contacted_Dem_Party_DV","Contacted_Rep_Party_DV","Contacted_Rep_Party_DV","Contacted_Rep_Party_DV","Contacted_Rep_Party_DV","Better_worse_DV","Better_worse_DV","Better_worse_DV","Better_worse_DV","Country_direction_DV","Dem_Pres_Angry_DV","Dem_Pres_Angry_DV","Dem_Pres_Angry_DV","Dem_Pres_Angry_DV","Dem_Pres_hopeful_DV","Dem_Pres_hopeful_DV","Dem_Pres_Proud_DV","Dem_Pres_Proud_DV","Dem_Pres_Proud_DV","Dem_Pres_Afraid_DV","Dem_Pres_Afraid_DV","Dem_Pres_Afraid_DV","Rep_Pres_Angry_DV","Rep_Pres_Angry_DV","Rep_Pres_Angry_DV","Rep_Pres_hopeful_DV","Rep_Pres_hopeful_DV","Rep_Pres_hopeful_DV","Rep_Pres_Proud_DV","Rep_Pres_Proud_DV","Rep_Pres_Proud_DV","Rep_Pres_Afraid_DV","Rep_Pres_Afraid_DV","Rep_Pres_Afraid_DV","Interest_elec_DV","Interest_elec_DV","Interest_elec_DV","Interest_elec_DV","Interest_elec_DV","Volunteer_work_DV","Volunteer_work_DV","Volunteer_work_DV","Volunteer_work_DV","RANKING","PercentDiff")) %>%
 filter(!is.na(or))
-
 
 # DF with just Odds Ratios for AGE
   
@@ -382,24 +446,14 @@ OR_Mixed_Plot
 
 ``` 
 
-```{r}} 
-logit2prob(coef(reg_wsr)) <- function(coef1){
-  odds <- exp(coef1)
-  prob <- odds / (1 + odds)
-  return(prob)
-}
-
-``` 
-
-
 # BARCHARTS!
 ```{r}
 
 # Barplot- Slide 7- Voting and Difference Between Parties
 
 # Weighting survey Data  
-Data_svy <- as_survey_design(Data_State_rank, weights = Weights)
-augment(reg_wsr, data = Data_State_rank) %>% 
+Data_svy <- as_survey_design(Data_Final_REG, weights = Weights)
+augment(reg_wsr, data = Data_Final_REG) %>% 
   select(Contacted_Dem_Party_DV, Rep_Pres_Proud_DV)
 
 
@@ -418,4 +472,21 @@ Diff_Parties <- ggplot(Plot_Diffbw_Party) +
 
 Diff_Parties
 
+Plot_DiffELECCLO <- Data_svy %>%
+  group_by(Election_Close) %>%
+  summarise(new_col = survey_mean(Voted_Y_N_DV, vartype="ci", na.rm = TRUE)) %>%
+  filter(Election_Close=="1" |Election_Close=="2") %>%
+  mutate(Variable2 = c("Will win by quite a bit", "Close Race"))
+
+Plot_DiffELECCLO
+
+Elections_Close_GRAPH <- ggplot(Plot_DiffELECCLO) +
+  aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
+   geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Will the Presidential Election Be Close", y = "Percent that voted", size =12) + 
+  geom_errorbar(ymin=0,ymax=0)
+
+Elections_Close_GRAPH
+
 ```
+
+
