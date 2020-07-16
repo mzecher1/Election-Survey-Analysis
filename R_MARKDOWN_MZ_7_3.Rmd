@@ -1,11 +1,11 @@
 ---
-title: "MZ Data & Policy Studio"
+title: "Analysis of the American National Election Survey"
 output:
   github_document: default
   word_document: default
 ---
 
-# Setting up the document 
+# Setting up the document to knit
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # Will install packages if first time
 
 ```{r eval=FALSE}
-# Best to leave these commented out
+
 # install.packages('dplyr') 
 # install.packages('readr')
 # install.packages('tidyr')
@@ -37,32 +37,32 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages('rmarkdown')
 ```
 
-# Read in the packages needed
+# Read in the packages that are needed
 ```{r message=FALSE}
-library(readr) # read/write dataframes
-library(tidyr) # reshaping dataframes
-library(stringr) # string manipulation
-library(forcats) # factor manipulation
-library(purrr) # iteration (instead of loops)
-library(ggpubr) # for Correlation
-library(ggplot2) # for Plots
+library(readr)
+library(tidyr) 
+library(stringr) 
+library(forcats) 
+library(purrr) 
+library(ggpubr) 
+library(ggplot2)
 library(car)
 library(gdata)
 library(skimr)
 library(readxl)
-library(dplyr) # manipulate dataframes
-library(janitor) # Clean data  
+library(dplyr) 
+library(janitor)  
 library(broom)
 library(gtsummary)
 library(srvyr)
 library(ggstance)
-library('margins')
+library(margins)
 
 ```
 
 
 # Import the data- ANES Survey Timeseries
-# Unzip the ANES data if needed
+# Will unzip the ANES data if needed
 ```{r}
 source("unzip-anes-data.r")
 ```
@@ -77,12 +77,14 @@ anes_timeseries_cdf_stata13 <- read_dta("data-raw/anes_timeseries_cdf_stata13.dt
   zap_labels() %>% 
   zap_formats()
 ```
-# Filtering for the right years 
+
+# Filtering for the right years (This analysis will include from 2004-2016)
 ```{r}
 Data_2004 <- anes_timeseries_cdf_stata13[!(anes_timeseries_cdf_stata13$VCF0004 < "2004"), ]
 
 ```
 
+# Cleaning up the data
 ```{r}
 # Removing Labels
 
@@ -131,11 +133,12 @@ Data_2004 %>%
   skim()
 ```
 
-Filtering the Dataset for the right variables
-
-Dealing w/ missings # For many of the categories I added a "Dummy" category to signal the question was unanswered. If the regression shows these dummies are not significant, can assume that these missings were not strongly biased in a direction. 
+# Filtering the Dataset for the right variables
 
 ```{r}
+# Dealing w/ missings: For many of the categories I added a "Dummy" category to signal the question was unanswered. If the regression shows these dummies are not significant, one can assume that these missings were not strongly biased in a direction. 
+
+# Also renamed the variables for clarity
 
 Filtered_DS <- Data_2004 %>% 
   select(
@@ -226,7 +229,7 @@ Filtered_DS <- Data_2004 %>%
   )
 ```
 
-# Creating Dummy Variables
+# Creating Dummy Variables for the categorical data 
 ```{r}
 
 Final_DS_DV <- Filtered_DS %>%
@@ -268,8 +271,10 @@ Final_DS_DV <- Filtered_DS %>%
 # Import data to merge: State voting access ranking and competativeness of elections
 
 Voter_Access_Comp_Rankings <- read_excel("Voter Access-Comp Rankings.xlsx")
+
 ```
 
+# Merging the main data set and the voter access/comp rankings data 
 ```{r}
 Data_Final_REG <- left_join(
   Final_DS_DV,
@@ -277,7 +282,7 @@ Data_Final_REG <- left_join(
   by = c("YEAR", "State")
 )
 
-# Checking that merge occured properly- did not add any new observations 
+# Checking that merge occurred properly (did not add any new observations) 
 nrow(Final_DS_DV) == nrow(Data_Final_REG)
 
 # Checking for duplications (VCF0006 is the Study Respondent Number)
@@ -295,7 +300,7 @@ reg_wsr <- glm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + Income_DV+ Educ
 
 summary(reg_wsr)
 
-# Used the margin commons to account for that the logit regression gives an output off one baseline, and this helps normalize the logit regression to reflect how the variables can shift and impact one and other
+# Used the margin commands to account for that the logit regression gives an output off one baseline, and this helps normalize the logit regression to reflect how the variables can shift and impact one and other(1 Footnote)
 
 margin_reg <- margins(reg_wsr)
 
@@ -309,16 +314,17 @@ reg_wsr_LM <- lm(Voted_Y_N_DV ~ Age_Dummy  + Gender_DV + Race_DV + Income_DV+ Ed
 
 summary(reg_wsr_LM)
 
-# We ran the linear and logit regression models to compare the two. The Logit Regression based on statistical technicalities fits a binary dependent variable better, yet when one uses the margin command to normalize the results of the logit regression, the two produce extremely similar results. 
+# We ran the linear and logit regression models to compare the two. The Logit Regression based on statistical technicalities fits a binary dependent variable better, yet when one uses the margin command to normalize the results of the logit regression, the two produce extremely similar results (1- Footnote) 
 ```
 
+# Calculate the percentage change for different variables from the regression 
 ```{r}
 # Turn OLS Regression into a DF to calculate the percentage changes from the baseline 
 Regression <- tidy(reg_wsr)
 
 OLS_DF <- tidy(reg_wsr_LM)
 
-# Calculate the level of the vairable's impact by summing the coefficient with the OLS intercept
+# Calculate the level of the variable's impact by summing the coefficient with the OLS intercept
 OLS_DF <- mutate(OLS_DF, Level_of_coef=(0.4197571788+estimate))
 
 # Calculate the percent change between the impact of the variable and the baseline
@@ -335,7 +341,8 @@ OLS_DF <- OLS_DF  %>% mutate(Variable2 = c("Intercept","Age_Dummy","Age_Dummy","
 # Graphs of percentage changes
 ```{r}
 
-# Percent Change in Age Graph
+# Percent Change in Age Graph, First create the data set with the write variable names as labels. Then create the plot
+
 
 Percent_AGE <- OLS_DF %>% filter(Variable2 =="Age_Dummy")
 Percent_AGE <- mutate(Percent_AGE, Variable = c("25-34","35-44","45-54","55-64","65-74","75+"))
@@ -352,7 +359,8 @@ Age_Per_Plot
 
 
 ```{r}
-# Percent change in Education - Graph 
+# Percent change in Education - Graph (Same steps as graph above)
+
 Percent_EDU <- OLS_DF %>% filter(Variable2 =="Education_DV")
 Percent_EDU <- mutate(Percent_EDU, Variable = c("High School","College Started (Not Finished) ","College Degree"))
 
@@ -366,7 +374,8 @@ EDU_Per_Plot
 ```
 
 ```{r}
-# Percent change based on emotional response - Graph 
+# Percent change based on emotional response - Graph, (Same steps as graph above)
+
 Percent_FEELING <- OLS_DF %>% filter(Variable2 =="PRES_FEELING2")
 Percent_FEELING <- mutate(Percent_FEELING, Variable = c("Dem Evokes Pride", "Dem Evokes Fear","Rep Evokes Pride", "Rep Evokes Fear"))
 
@@ -384,10 +393,9 @@ Feeling_Per_Plot
 
 ```
 
-# Odds Ratio Charts based off the Logit Regressions
+# Odds Ratio Charts based off the Logit Regressions (These were used in the speaking presentation, but not the blog post that focused on percentages)
 ```{r}
 
-  
 # Tibble method to make ODDS RATIO CHARTS based off the LOGIT Regressions
 Reg_OR_Table <-  tbl_regression(
   reg_wsr,
@@ -452,13 +460,12 @@ OR_Mixed_Plot
 # BARCHARTS!
 ```{r}
 
-# Barplot- Slide 7- Voting and Difference Between Parties
-
 # Weighting survey Data  
 Data_svy <- as_survey_design(Data_Final_REG, weights = Weights)
 augment(reg_wsr, data = Data_Final_REG) %>% 
   select(Contacted_Dem_Party_DV, Rep_Pres_Proud_DV)
 
+# Creating the data frame to work from 
 
 Plot_Diffbw_Party<- Data_svy %>%
   group_by(Bw_parties) %>%
@@ -468,12 +475,16 @@ Plot_Diffbw_Party<- Data_svy %>%
   
 Plot_Diffbw_Party
 
+# Creating the graph itself 
+
 Diff_Parties <- ggplot(Plot_Diffbw_Party) +
   aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
    geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Is there a difference between parties", y = "Percent that voted", size =12) + 
   geom_errorbar(ymin=0,ymax=0)
 
 Diff_Parties
+
+# Graph for Percent who felt the election would be close (Same steps as above)
 
 Plot_DiffELECCLO <- Data_svy %>%
   group_by(Election_Close) %>%
@@ -492,4 +503,5 @@ Elections_Close_GRAPH
 
 ```
 
-
+# Footnote: 1) These assumptions were learned from Professor Josh Merfeld and the coding margins from https://cran.r-project.org/web/packages/margins/vignettes/Introduction.html
+ 
