@@ -1,0 +1,33 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1671\cocoasubrtf600
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\froman\fcharset0 Times-Roman;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;\red255\green255\blue255;\red64\green75\blue83;
+\red31\green32\blue33;\red190\green190\blue190;}
+{\*\expandedcolortbl;;\cssrgb\c0\c0\c0;\cssrgb\c100000\c100000\c100000;\cssrgb\c31765\c36863\c40000;
+\cssrgb\c16078\c16863\c17255;\cssrgb\c79216\c79216\c79216;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{disc\}}{\leveltext\leveltemplateid1\'01\uc0\u8226 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{circle\}}{\leveltext\leveltemplateid2\'01\uc0\u9702 ;}{\levelnumbers;}\fi-360\li1440\lin1440 }{\listname ;}\listid1}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}}
+\paperw9000\paperh13320\margl1440\margr1440\vieww13180\viewh11820\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs22 \cf0 \
+I analyzed survey data regarding the past 4 presidential elections to analyze what did and did not lead people to go to the voting booth (not literally- mail in ballots count too!). The analysis explores how people\'92s ideologies, contact with campaigns, demographics, emotions towards the candidates and much more influence voting. \
+\
+{\field{\*\fldinst{HYPERLINK "https://medium.com/@mendyzecher/voting-64693ba420b7"}}{\fldrslt Click here for the full analysis!\
+}}\
+In order to run the statistical analysis please go to my {\field{\*\fldinst{HYPERLINK "https://github.com/wagner-mspp-2020/mz2733"}}{\fldrslt GitHub page}}. Here, you can download the entire code in a Zip file and then open it on your computer. It consists of the raw data, including the survey results of the American National Election Survey and an excel file that has voting access rankings and the margin of victory for all states in the past 4 presidential elections. 	\
+Additionally, this includes the markdown file to run the programming. Open this (R_MARKDOWN_VOTING) in R Studio and run the code as it is presented in that exact order! Included in it is importing the needed packages and raw data, code to clean the data, run the analysis and create the graphs. This will clean the data and lead you to both a Logit and OLS regression, both of which then have code to turn this information into relevant percentages and odds ratios. \
+ \
+Lastly, the graphs created will be downloaded with several other files to help run the doe (renv folder and file, unzip instructions and more). \
+\
+I used the American National Election Survey, a survey given every presidential election year. The survey asks eligible voters questions both before and after the election. As mentioned the analysis covers, the survey covers the same items; people\'92s ideologies, contact with campaigns, demographics, emotions towards the candidates. Additionally, to control for both access to vote and competitiveness of elections I added the {\field{\*\fldinst{HYPERLINK "https://www.liebertpub.com/doi/10.1089/elj.2017.0478"}}{\fldrslt Cost of Voting Index}} (\cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec4 Quan Li,\'a0Michael J. PomanteII, and\'a0\strokec5 Scot Schraufnagel)\cf5  \cf2 and the margin of victory by\cf5  {\field{\*\fldinst{HYPERLINK "https://www.fec.gov/introduction-campaign-finance/election-and-voting-information/"}}{\fldrslt state}}. \cf0 \cb1 \kerning1\expnd0\expndtw0 \outl0\strokewidth0  \
+ \
+To conduct the analysis I used a two versions of regressions; a Logit and ordinary least squares. The Logit regression is the most technically correct regression analysis to use in a scenario where the variable one is looking to predict has a binary (X or Y, Win or Lose) outcome. The outcomes from Ordinary Least Squares regressions are more easier translatable than the results the Logit regression naturally expels. Additionally, after one alters a Logit regression to balance its\'92 flexibility issues, the results tend to align closely with a normal Ordinary Least Squares regression. Consequently, I ran both and used different analyses dependent on the relevant audience.\
+\
+I wanted to thank Maxwell Austensen for all his work and TIME spent helping work out any issues with the coding and all general advice given! Additionally, thank you Nyx NG and Josh Merfeld for teaching me the nuances of a legit regression.    \
+\
+\pard\tx940\tx1440\pardeftab720\li1440\fi-1440\sl500\partightenfactor0
+\ls1\ilvl1
+\f1 \cf6 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec6 \
+}
