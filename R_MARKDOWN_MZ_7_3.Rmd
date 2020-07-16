@@ -8,6 +8,7 @@ output:
 # Setting up the document 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 
 # Will install packages if first time
@@ -33,6 +34,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages('ggstance')
 # install.packages("margins")
 # install.packages('haven')
+install.packages('rmarkdown')
 ```
 
 # Read in the packages needed
@@ -55,6 +57,7 @@ library(gtsummary)
 library(srvyr)
 library(ggstance)
 library('margins')
+library('rmarkdown')
 
 ```
 
@@ -347,6 +350,7 @@ Age_Per_Plot <- ggplot(Percent_AGE) +
 Age_Per_Plot
 
 ```
+
 
 ```{r}
 # Percent change in Education - Graph 
