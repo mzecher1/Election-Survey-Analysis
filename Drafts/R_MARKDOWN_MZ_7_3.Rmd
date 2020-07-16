@@ -355,6 +355,18 @@ Age_Per_Plot <- ggplot(Percent_AGE) +
   geom_col(fill="#FF9999", colour="blue")  + coord_flip()
 Age_Per_Plot
 
+ggsave(
+  "Age_Per_Plot",
+  plot = last_plot(),
+  device = "pdf",
+  path = "visualizations",
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
+
 ```
 
 
@@ -369,8 +381,21 @@ EDU_Per_Plot <- ggplot(Percent_EDU) +
   labs(title = "As Education increaes so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Education", y = "Percent Change compared to Non High School Graduates") +
-  geom_col(fill="#FF9999", colour="blue", order="ascending")  + coord_flip()
+  geom_col(fill="#FF9999", colour="blue")  + coord_flip()
 EDU_Per_Plot
+
+ggsave(
+  "EDU_Per_Plot",
+  plot = last_plot(),
+  device = "pdf",
+  path = "visualizations",
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
+
 ```
 
 ```{r}
@@ -390,6 +415,18 @@ Feeling_Per_Plot <- ggplot(Percent_FEELING) +
               x = "Emotions Elicited?", y = "Percent Change") +
   geom_col(fill="#FF9999", colour="blue") + coord_flip()  
 Feeling_Per_Plot
+
+ggsave(
+  "Feeling_Per_Plot",
+  plot = last_plot(),
+  device = "pdf",
+  path = "visualizations",
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
 
 ```
 
@@ -428,6 +465,18 @@ OR_Age_Plot <- ggplot(OR_AGEs) +
   coord_flip()  
 OR_Age_Plot
 
+ggsave(
+  "OR_Age_Plot-Presentation Only",
+  plot = last_plot(),
+  device = "pdf",
+  path = "visualizations",
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
+
 # DF with just Odds Ratios for Education
 OR_EDU <- plot_data_new_cat %>% filter(Variable2 =="Education_DV")
 
@@ -442,6 +491,19 @@ OR_Edu_Plot <- ggplot(OR_EDU) +
   coord_flip()  
 OR_Edu_Plot
 
+ggsave(
+  "OR_EDU_Plot-Presentation Only",
+  plot = last_plot(),
+  device = "pdf",
+  path = "visualizations",
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
+
+
 # DF with just Odds Ratios for several categories 
 OR_Mixed <- plot_data_new_cat %>% filter(Variable2 =="Election_Close_DV" & characteristic== "2"  | Variable2=="Anyone_talk_vote_DV" & characteristic== "5" | Variable2=="Better_worse_DV" & characteristic== "3")
 
@@ -454,6 +516,18 @@ OR_Mixed_Plot <- ggplot(OR_Mixed) +
   geom_col(fill="#FF9999", colour="blue") + 
   coord_flip()  
 OR_Mixed_Plot
+
+ggsave(
+  "OR_MIXED_Plot-Presentation Only",
+  plot = last_plot(),
+  device = "pdf",
+  path = "visualizations",
+  scale = 1,
+  width = 8,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
 
 ``` 
 
@@ -477,12 +551,16 @@ Plot_Diffbw_Party
 
 # Creating the graph itself 
 
+pdf("visualizations/diffparties.pdf") 
+
 Diff_Parties <- ggplot(Plot_Diffbw_Party) +
   aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
    geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Is there a difference between parties", y = "Percent that voted", size =12) + 
   geom_errorbar(ymin=0,ymax=0)
 
 Diff_Parties
+
+dev.off() 
 
 # Graph for Percent who felt the election would be close (Same steps as above)
 
@@ -494,6 +572,8 @@ Plot_DiffELECCLO <- Data_svy %>%
 
 Plot_DiffELECCLO
 
+pdf("visualizations/Elections_Close_GRAPH.pdf") 
+
 Elections_Close_GRAPH <- ggplot(Plot_DiffELECCLO) +
   aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
    geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Will the Presidential Election Be Close", y = "Percent that voted", size =12) + 
@@ -501,7 +581,10 @@ Elections_Close_GRAPH <- ggplot(Plot_DiffELECCLO) +
 
 Elections_Close_GRAPH
 
+dev.off() 
+
+
 ```
 
-# Footnote: 1) These assumptions were learned from Professor Josh Merfeld and the coding margins from https://cran.r-project.org/web/packages/margins/vignettes/Introduction.html
+# Footnote: 1) These assumptions were learned from Professor Josh Merfeld + https://stats.idre.ucla.edu/stata/da, and the coding margins from https://cran.r-project.org/web/packages/margins/vignettes/Introduction.html
  
