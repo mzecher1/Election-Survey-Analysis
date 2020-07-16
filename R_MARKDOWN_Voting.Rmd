@@ -270,7 +270,7 @@ Final_DS_DV <- Filtered_DS %>%
 ```{r}
 # Import data to merge: State voting access ranking and competativeness of elections
 
-Voter_Access_Comp_Rankings <- read_excel("Voter Access-Comp Rankings.xlsx")
+Voter_Access_Comp_Rankings <- read_excel("data-raw/Voter Access-Comp Rankings.xlsx")
 
 ```
 
