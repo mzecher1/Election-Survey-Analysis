@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r eval=FALSE}
 # Best to leave these commented out
-# install.packages('dplyr')
+# install.packages('dplyr') 
 # install.packages('readr')
 # install.packages('tidyr')
 # install.packages('stringr')
@@ -34,7 +34,7 @@ knitr::opts_chunk$set(echo = TRUE)
 # install.packages('ggstance')
 # install.packages("margins")
 # install.packages('haven')
-install.packages('rmarkdown')
+# install.packages('rmarkdown')
 ```
 
 # Read in the packages needed
@@ -57,7 +57,6 @@ library(gtsummary)
 library(srvyr)
 library(ggstance)
 library('margins')
-library('rmarkdown')
 
 ```
 
