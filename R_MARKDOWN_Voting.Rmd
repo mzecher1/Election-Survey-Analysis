@@ -349,7 +349,7 @@ Percent_AGE <- mutate(Percent_AGE, Variable = c("25-34","35-44","45-54","55-64",
 
 Age_Per_Plot <- ggplot(Percent_AGE) + 
   aes(x =Variable, y = Percent_Change) + 
-  labs(title = "                        As age increaes so does the likelihood of voting",
+  labs(title = "As age increases so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Age", y = "Percent Change compared to 17-24 Year Old Group") +
   geom_col(fill="#FF9999", colour="blue")  + coord_flip()
@@ -378,7 +378,7 @@ Percent_EDU <- mutate(Percent_EDU, Variable = c("High School","College Started (
 
 EDU_Per_Plot <- ggplot(Percent_EDU) + 
   aes(x =Variable, y = Percent_Change) + 
-  labs(title = "As Education increaes so does the likelihood of voting",
+  labs(title = "As Education increases so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Education", y = "Percent Change compared to Non High School Graduates") +
   geom_col(fill="#FF9999", colour="blue")  + coord_flip()
@@ -410,7 +410,7 @@ Percent_FEELING <- mutate(Percent_FEELING, Percent_Change3= (0.4197571788-Percen
 
 Feeling_Per_Plot <- ggplot(Percent_FEELING) + 
   aes(x =Variable, y = Percent_Change3) + 
-  labs(title = "What Emotions Motivate Potential Voters",
+  labs(title = "What Emotions evoked from Presidential Candidates motivate Potential Voters",
               caption = "Source: ANES",
               x = "Emotions Elicited?", y = "Percent Change") +
   geom_col(fill="#FF9999", colour="blue") + coord_flip()  
@@ -458,7 +458,7 @@ OR_AGEs <- plot_data_new_cat %>% filter(Variable2 =="Age_Dummy")
 # Plot for Age Odds Ratios
 OR_Age_Plot <- ggplot(OR_AGEs) + 
   aes(x =Variable, y = or) + 
-  labs(title = "Effect of Age on Voting",
+  labs(title = "As age rises so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Age", y = "Odds Ratio") +
   geom_col(fill="#FF9999", colour="blue") + 
@@ -484,7 +484,7 @@ OR_EDU <- plot_data_new_cat %>% filter(Variable2 =="Education_DV")
 
 OR_Edu_Plot <- ggplot(OR_EDU) + 
   aes(x =Variable, y = or) + 
-  labs(title = "Effect of Education on Voting",
+  labs(title = "As education rises so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Education", y = "Odds Ratio") +
   geom_col(fill="#FF9999", colour="blue") + 
@@ -511,7 +511,7 @@ OR_Mixed <- plot_data_new_cat %>% filter(Variable2 =="Election_Close_DV" & chara
 
 OR_Mixed_Plot <- ggplot(OR_Mixed) + 
   aes(x =Variable, y = or) + 
-  labs(caption = "Source: ANES",
+  labs(title = "Surprisingly, these items did not alter the likelihood of people to vote", caption = "Source: ANES",
               x = "", y = "Odds Ratio") +
   geom_col(fill="#FF9999", colour="blue") + 
   coord_flip()  
@@ -523,7 +523,7 @@ ggsave(
   device = "png",
   path = "visualizations",
   scale = 1,
-  width = 8,
+  width = 9,
   height = 6,
   units = c("in"),
   dpi = 300,
@@ -551,16 +551,24 @@ Plot_Diffbw_Party
 
 # Creating the graph itself 
 
-png("visualizations/diffparties.png") 
-
-Diff_Parties <- ggplot(Plot_Diffbw_Party) +
+Diff_Parties <- ggplot(Plot_Diffbw_Party) + labs(title="Individuals are much more likely to vote when they feel there is a major difference between parties") +
   aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
-   geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Is there a difference between parties", y = "Percent that voted", size =12) + 
-  geom_errorbar(ymin=0,ymax=0)
+  geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Is there a difference between parties", y = "Percent that voted", size =12) + 
+geom_errorbar(ymin=0,ymax=0)
 
 Diff_Parties
 
-dev.off() 
+ggsave(
+  "Diff_Parties.png",
+  plot = last_plot(),
+  device = "png",
+  path = "visualizations",
+  scale = 1,
+  width = 9,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
 
 # Graph for Percent who felt the election would be close (Same steps as above)
 
@@ -572,16 +580,24 @@ Plot_DiffELECCLO <- Data_svy %>%
 
 Plot_DiffELECCLO
 
-png("visualizations/Elections_Close_GRAPH.png") 
-
 Elections_Close_GRAPH <- ggplot(Plot_DiffELECCLO) +
-  aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
+  aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) + labs(title= "The belief that an election will be close does not impact the likelihood that one will vote!")+
    geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Will the Presidential Election Be Close", y = "Percent that voted", size =12) + 
   geom_errorbar(ymin=0,ymax=0)
 
 Elections_Close_GRAPH
 
-dev.off() 
+ggsave(
+  "Elections_Close_GRAPH.png",
+  plot = last_plot(),
+  device = "png",
+  path = "visualizations",
+  scale = 1,
+  width = 9,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
 
 
 ```
