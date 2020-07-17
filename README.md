@@ -2,9 +2,9 @@ I analyzed survey data regarding the past 4 presidential elections to analyze wh
 
 [Click here for the full analysis](https://medium.com/@mendyzecher/voting-64693ba420b7)
 
-In order to run the statistical analysis please go to [my GitHub page](https://github.com/wagner-mspp-2020/mz2733). Here, you can download the entire code in a Zip file and then open it on your computer. It consists of the raw data, including the survey results of the American National Election Survey and an excel file that has voting access rankings and the margin of victory for all states in the past 4 presidential elections. 
+In order to run the statistical analysis please go to [my GitHub page](https://github.com/wagner-mspp-2020/mz2733). Here, you can download all of the code and data in a Zip file and then open it on your computer. It consists of the raw data, including the survey results of the American National Election Survey and an excel file that has voting access rankings and the margin of victory for all states in the past 4 presidential elections. 
 
-Additionally, this includes the markdown file to run the programming. Open this (R_MARKDOWN_VOTING) in R Studio and run the code as it is presented in that exact order! Included in it is importing the needed packages and raw data, code to clean the data, run the analysis and create the graphs. This will clean the data and lead you to both a Logit and OLS regression, both of which then have code to turn this information into relevant percentages and odds ratios. 
+Additionally, this includes the markdown file to run the programming. Open this (R_MARKDOWN_Voting.rmd) in R Studio and run the code as it is presented in that exact order! Included in it is importing the needed packages and raw data, code to clean the data, run the analysis and create the graphs. This will clean the data and lead you to both a Logit and OLS regression, both of which then have code to turn this information into relevant percentages and odds ratios. 
  
 Lastly, the graphs created will be downloaded with several other files to help run the doe (renv folder and file, unzip instructions and more). 
 
