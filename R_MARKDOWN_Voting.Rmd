@@ -7,7 +7,7 @@ output:
 
 # Setting up the document to knit
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
 
 ```
 
@@ -356,9 +356,9 @@ Age_Per_Plot <- ggplot(Percent_AGE) +
 Age_Per_Plot
 
 ggsave(
-  "Age_Per_Plot",
+  "Age_Per_Plot.png",
   plot = last_plot(),
-  device = "pdf",
+  device = "png",
   path = "visualizations",
   scale = 1,
   width = 8,
@@ -385,9 +385,9 @@ EDU_Per_Plot <- ggplot(Percent_EDU) +
 EDU_Per_Plot
 
 ggsave(
-  "EDU_Per_Plot",
+  "EDU_Per_Plot.png",
   plot = last_plot(),
-  device = "pdf",
+  device = "png",
   path = "visualizations",
   scale = 1,
   width = 8,
@@ -417,9 +417,9 @@ Feeling_Per_Plot <- ggplot(Percent_FEELING) +
 Feeling_Per_Plot
 
 ggsave(
-  "Feeling_Per_Plot",
+  "Feeling_Per_Plot.png",
   plot = last_plot(),
-  device = "pdf",
+  device = "png",
   path = "visualizations",
   scale = 1,
   width = 8,
@@ -466,9 +466,9 @@ OR_Age_Plot <- ggplot(OR_AGEs) +
 OR_Age_Plot
 
 ggsave(
-  "OR_Age_Plot-Presentation Only",
+  "OR_Age_Plot-Presentation Only.png",
   plot = last_plot(),
-  device = "pdf",
+  device = "png",
   path = "visualizations",
   scale = 1,
   width = 8,
@@ -492,9 +492,9 @@ OR_Edu_Plot <- ggplot(OR_EDU) +
 OR_Edu_Plot
 
 ggsave(
-  "OR_EDU_Plot-Presentation Only",
+  "OR_EDU_Plot-Presentation Only.png",
   plot = last_plot(),
-  device = "pdf",
+  device = "png",
   path = "visualizations",
   scale = 1,
   width = 8,
@@ -518,9 +518,9 @@ OR_Mixed_Plot <- ggplot(OR_Mixed) +
 OR_Mixed_Plot
 
 ggsave(
-  "OR_MIXED_Plot-Presentation Only",
+  "OR_MIXED_Plot-Presentation Only.png",
   plot = last_plot(),
-  device = "pdf",
+  device = "png",
   path = "visualizations",
   scale = 1,
   width = 8,
@@ -551,7 +551,7 @@ Plot_Diffbw_Party
 
 # Creating the graph itself 
 
-pdf("visualizations/diffparties.pdf") 
+png("visualizations/diffparties.png") 
 
 Diff_Parties <- ggplot(Plot_Diffbw_Party) +
   aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
@@ -572,7 +572,7 @@ Plot_DiffELECCLO <- Data_svy %>%
 
 Plot_DiffELECCLO
 
-pdf("visualizations/Elections_Close_GRAPH.pdf") 
+png("visualizations/Elections_Close_GRAPH.png") 
 
 Elections_Close_GRAPH <- ggplot(Plot_DiffELECCLO) +
   aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
