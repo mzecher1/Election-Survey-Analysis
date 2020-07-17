@@ -365,8 +365,8 @@ janitor::get_dupes(anes_timeseries_cdf_stata13, VCF0004, VCF0006)
 get_dupes(Data_Final_REG, YEAR, VCF0006)
 ```
 
-    ## # A tibble: 0 x 77
-    ## # … with 77 variables: YEAR <dbl>, VCF0006 <dbl>, dupe_count <int>,
+    ## # A tibble: 0 x 69
+    ## # … with 69 variables: YEAR <dbl>, VCF0006 <dbl>, dupe_count <int>,
     ## #   Weights <dbl>, Age <dbl>, Gender <dbl>, Race <dbl>, Income <dbl>,
     ## #   Education <dbl>, Party <dbl>, Interest_Elec <dbl>, Dem_Pres_Angry <dbl>,
     ## #   Dem_Pres_Afraid <dbl>, Dem_Pres_hopeful <dbl>, Dem_Pres_Proud <dbl>,
@@ -389,8 +389,7 @@ get_dupes(Data_Final_REG, YEAR, VCF0006)
     ## #   Volunteer_work_DV <fct>, Income_DV <fct>, Party_aff_DV <fct>,
     ## #   Education_DV <fct>, Community_work_DV <fct>, Anyone_talk_vote_DV <fct>,
     ## #   Appove_Pres <fct>, Voted_Y_N_DV <dbl>, Country_direction_DV <dbl>,
-    ## #   StateABB <chr>, RANKING <dbl>, PercentDiff <dbl>, ...6 <lgl>, ...7 <lgl>,
-    ## #   ...8 <dbl>, ...9 <dbl>, ...10 <dbl>, ...11 <dbl>, ...12 <dbl>, ...13 <dbl>
+    ## #   StateABB <chr>, RANKING <dbl>, PercentDiff <dbl>
 
 # Logit Regressions
 
@@ -688,7 +687,7 @@ Percent_AGE <- mutate(Percent_AGE, Variable = c("25-34","35-44","45-54","55-64",
 
 Age_Per_Plot <- ggplot(Percent_AGE) + 
   aes(x =Variable, y = Percent_Change) + 
-  labs(title = "                        As age increaes so does the likelihood of voting",
+  labs(title = "As age increases so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Age", y = "Percent Change compared to 17-24 Year Old Group") +
   geom_col(fill="#FF9999", colour="blue")  + coord_flip()
@@ -719,7 +718,7 @@ Percent_EDU <- mutate(Percent_EDU, Variable = c("High School","College Started (
 
 EDU_Per_Plot <- ggplot(Percent_EDU) + 
   aes(x =Variable, y = Percent_Change) + 
-  labs(title = "As Education increaes so does the likelihood of voting",
+  labs(title = "As Education increases so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Education", y = "Percent Change compared to Non High School Graduates") +
   geom_col(fill="#FF9999", colour="blue")  + coord_flip()
@@ -754,7 +753,7 @@ Percent_FEELING <- mutate(Percent_FEELING, Percent_Change3= (0.4197571788-Percen
 
 Feeling_Per_Plot <- ggplot(Percent_FEELING) + 
   aes(x =Variable, y = Percent_Change3) + 
-  labs(title = "What Emotions Motivate Potential Voters",
+  labs(title = "What Emotions evoked from Presidential Candidates motivate Potential Voters",
               caption = "Source: ANES",
               x = "Emotions Elicited?", y = "Percent Change") +
   geom_col(fill="#FF9999", colour="blue") + coord_flip()  
@@ -805,7 +804,7 @@ OR_AGEs <- plot_data_new_cat %>% filter(Variable2 =="Age_Dummy")
 # Plot for Age Odds Ratios
 OR_Age_Plot <- ggplot(OR_AGEs) + 
   aes(x =Variable, y = or) + 
-  labs(title = "Effect of Age on Voting",
+  labs(title = "As age rises so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Age", y = "Odds Ratio") +
   geom_col(fill="#FF9999", colour="blue") + 
@@ -835,7 +834,7 @@ OR_EDU <- plot_data_new_cat %>% filter(Variable2 =="Education_DV")
 
 OR_Edu_Plot <- ggplot(OR_EDU) + 
   aes(x =Variable, y = or) + 
-  labs(title = "Effect of Education on Voting",
+  labs(title = "As education rises so does the likelihood of voting",
               caption = "Source: ANES",
               x = "Education", y = "Odds Ratio") +
   geom_col(fill="#FF9999", colour="blue") + 
@@ -866,7 +865,7 @@ OR_Mixed <- plot_data_new_cat %>% filter(Variable2 =="Election_Close_DV" & chara
 
 OR_Mixed_Plot <- ggplot(OR_Mixed) + 
   aes(x =Variable, y = or) + 
-  labs(caption = "Source: ANES",
+  labs(title = "Surprisingly, these items did not alter the likelihood of people to vote", caption = "Source: ANES",
               x = "", y = "Odds Ratio") +
   geom_col(fill="#FF9999", colour="blue") + 
   coord_flip()  
@@ -882,7 +881,7 @@ ggsave(
   device = "png",
   path = "visualizations",
   scale = 1,
-  width = 8,
+  width = 9,
   height = 6,
   units = c("in"),
   dpi = 300,
@@ -934,22 +933,29 @@ Plot_Diffbw_Party
 ``` r
 # Creating the graph itself 
 
-png("visualizations/diffparties.png") 
-
-Diff_Parties <- ggplot(Plot_Diffbw_Party) +
+Diff_Parties <- ggplot(Plot_Diffbw_Party) + labs(title="Individuals are much more likely to vote when they feel there is a major difference between parties") +
   aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
-   geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Is there a difference between parties", y = "Percent that voted", size =12) + 
-  geom_errorbar(ymin=0,ymax=0)
+  geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Is there a difference between parties", y = "Percent that voted", size =12) + 
+geom_errorbar(ymin=0,ymax=0)
 
 Diff_Parties
-
-dev.off() 
 ```
 
-    ## quartz_off_screen 
-    ##                 2
+![](R_MARKDOWN_Voting_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
+ggsave(
+  "Diff_Parties.png",
+  plot = last_plot(),
+  device = "png",
+  path = "visualizations",
+  scale = 1,
+  width = 9,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
+
 # Graph for Percent who felt the election would be close (Same steps as above)
 
 Plot_DiffELECCLO <- Data_svy %>%
@@ -968,19 +974,28 @@ Plot_DiffELECCLO
     ## 2              2   0.784       0.773       0.795 Close Race
 
 ``` r
-png("visualizations/Elections_Close_GRAPH.png") 
-
 Elections_Close_GRAPH <- ggplot(Plot_DiffELECCLO) +
-  aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) +
+  aes(x =Variable2, y = new_col, ymin = new_col_low, ymax = new_col_upp) + labs(title= "The belief that an election will be close does not impact the likelihood that one will vote!")+
    geom_col(position="dodge", fill="#FF9999", colour="blue", Width=.1, stat='identity') +  labs(caption = "Source: ANES", x = "Will the Presidential Election Be Close", y = "Percent that voted", size =12) + 
   geom_errorbar(ymin=0,ymax=0)
 
 Elections_Close_GRAPH
-
-dev.off() 
 ```
 
-    ## quartz_off_screen 
-    ##                 2
+![](R_MARKDOWN_Voting_files/figure-gfm/unnamed-chunk-18-2.png)<!-- -->
+
+``` r
+ggsave(
+  "Elections_Close_GRAPH.png",
+  plot = last_plot(),
+  device = "png",
+  path = "visualizations",
+  scale = 1,
+  width = 9,
+  height = 6,
+  units = c("in"),
+  dpi = 300,
+  limitsize = TRUE)
+```
 
 # Footnote: 1) These assumptions were learned from Professor Josh Merfeld + <https://stats.idre.ucla.edu/stata/da>, and the coding margins from <https://cran.r-project.org/web/packages/margins/vignettes/Introduction.html>
