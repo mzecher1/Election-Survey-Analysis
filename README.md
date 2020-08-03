@@ -12,6 +12,6 @@ I used the American National Election Survey, a survey given every presidential 
  
 To conduct the analysis I used a two versions of regressions; a Logit and ordinary least squares. The Logit regression is the most technically correct regression analysis to use in a scenario where the variable one is looking to predict has a binary (X or Y, Win or Lose) outcome. The outcomes from Ordinary Least Squares regressions are more easier translatable than the results the Logit regression naturally expels. Additionally, after one alters a Logit regression to balance its’ flexibility issues, the results tend to align closely with a normal Ordinary Least Squares regression. Consequently, I ran both and used different analyses dependent on the relevant audience.
 
-I wanted to thank Maxwell Austensen for all his work and TIME spent helping work out any issues with the coding and all general advice given! Additionally, thank you Nyx Ng and Josh Merfeld for teaching me the nuances of a Logit regression.    
+I wanted to thank Maxwell Austensen for his work spent helping work out any issues with the coding and all general advice given! Additionally, thank you Nyx Ng and Josh Merfeld for teaching me the nuances of a Logit regression.    
 
 
